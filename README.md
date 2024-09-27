@@ -1,8 +1,11 @@
 Commands:
-    python3 -m venv env
-    source env/bin/activate
-    pip install flask
-    python app.py
+ 1. python3 -m venv env
+
+ 2. source env/bin/activate
+
+ 3. pip install flask
+ 
+ 4. python app.py
 
 
 
