@@ -1,7 +1,65 @@
 {% extends "base.html" %}
 
-{% block title %}Settings - My App{% endblock %}
+{% block title %}Settings Page{% endblock %}
 
 {% block content %}
-    <h2>Settings</h2>
+<h1>Settings Page</h1>
+
+<p>Welcome, {{ user.username }}! Personalize your account here.</p>
+
+<div class="search-container" style="position: relative; display: inline-block;">
+    <input type="text" id="team_search" placeholder="Search for a team" style="width: 200px; position: relative; z-index: 1;">
+    <ul id="team_results" style="list-style-type: none; padding: 0; margin: 0; display: none; border: 1px solid #ccc; background-color: white; width: 200px; max-height: 150px; overflow-y: auto; position: absolute; top: 100%; left: 0; z-index: 1000;"></ul>
+</div>
+
+<form id="favorite_team_form" action="/update_favorite_team" method="POST" style="display:none; margin-top: 10px;">
+    <input type="hidden" id="favorite_team_id" name="favorite_team_id">
+    <button type="submit" id="set_favorite_btn">Set as Favorite Team</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#team_search').on('keyup', function(){
+            let query = $(this).val();
+
+            if (query.length > 2) {
+                $.ajax({
+                    url: '/search_teams',
+                    type: 'GET',
+                    data: {query: query},
+                    success: function(data) {
+                        $('#team_results').empty().show();
+                        data.teams.forEach(function(team) {
+                            $('#team_results').append(`<li data-team-id="${team.id}" style="padding: 8px; cursor: pointer;">${team.name}</li>`);
+                        });
+                    }
+                });
+            } else {
+                $('#team_results').empty().hide();
+            }
+        });
+
+        $('#team_results').on('click', 'li', function(){
+            let teamId = $(this).data('team-id');
+            let teamName = $(this).text();
+
+            $('#favorite_team_id').val(teamId);
+
+            $('#team_search').val(teamName);
+
+            $('#team_results').hide();
+
+            $('#favorite_team_form').show();
+        });
+
+        $('#team_search').on('focus', function() {
+            if ($(this).val().length > 2) {
+                $('#team_results').show();
+            }
+        });
+    });
+</script>
+
+<p><a href="{{ url_for('home') }}">Back to Home</a></p>
 {% endblock %}

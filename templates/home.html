@@ -1,23 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Home - My App{% endblock %}
+{% block title %}Home - College Football Hub{% endblock %}
 
 {% block content %}
     <h2>Welcome to the Home Page!</h2>
     <p>This is the home page of the College Football Hub.</p>
 
-    <h3>Schedule for 2020</h3>
-
-    {% if 'error' in data %}
-        <p>{{ data.error }}</p>
+    <!-- Check if the user is logged in -->
+    {% if 'username' in session %}
+        <!-- Display the user's favorite team if it's set -->
+        <p>Welcome back, {{ session['username'] }}!</p>
+        
+        {% if user.favorite_team %}
+            <p>Your favorite team is: <strong>{{ user.favorite_team }}</strong></p>
+        {% else %}
+            <p>You haven't selected a favorite team yet. Go to <a href="{{ url_for('settings') }}">settings</a> to choose one.</p>
+        {% endif %}
     {% else %}
-        <ul>
-            {% for game in data %}
-                <li>
-                    {{ game.home_team }} vs {{ game.away_team }} on {{ game.start_date }}
-                </li>
-            {% endfor %}
-        </ul>
+        <p>Please <a href="{{ url_for('login') }}">log in</a> to personalize your experience.</p>
     {% endif %}
-{% endblock %}
 
+    <h3>Schedule for 2020</h3>
+    <!-- Add schedule or other content here -->
+    
+{% endblock %}

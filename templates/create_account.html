@@ -1,23 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account</title>
-</head>
-<body>
-    <h1>Create an Account</h1>
+{% extends "base.html" %}
 
-    <form action="/create_account" method="POST">
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<h1>Create Account</h1>
+
+<form action="{{ url_for('create_account') }}" method="POST">
+    <div>
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-
+        <input type="text" name="username" id="username" required>
+    </div>
+    <div>
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" name="password" id="password" required>
+    </div>
+    <button type="submit">Create Account</button>
+</form>
 
-        <button type="submit">Create Account</button>
-    </form>
-
-    <p>Already have an account? <a href="/login">Login here</a></p>
-</body>
-</html>
+<p>Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</p>
+{% endblock %}
