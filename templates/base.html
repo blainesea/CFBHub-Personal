@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My App{% endblock %}</title>
+    <title>{% block title %}College Football Hub{% endblock %}</title>
+    <!-- Include jQuery for AJAX -->
     <style>
         body {
             background-color: #78b6e998;
@@ -12,7 +13,7 @@
         .navbar {
             display: flex;
             background-color: #333;
-            justify-content: center;
+            justify-content: space-between;
             padding: 10px;
         }
         .navbar a {
@@ -45,15 +46,28 @@
             width: 140px;
             height: auto;
             margin-left: 10px;
-    }
+        }
     </style>
     <div class="navbar">
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('scores') }}">Scores</a>
-        <a href="{{ url_for('teams') }}">Teams</a>
-        <a href="{{ url_for('news') }}">News</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
+        <div>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('scores') }}">Scores</a>
+            <a href="{{ url_for('teams') }}">Teams</a>
+            <a href="{{ url_for('rankings') }}">Rankings</a>
+            <a href="{{ url_for('news') }}">News</a>
+        </div>
+
+        <div>
+            {% if 'username' not in session %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('create_account') }}">Create Account</a>
+            {% else %}
+                <a href="{{ url_for('settings') }}">Settings</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% endif %}    
+        </div>
     </div>
+
     <section class="content">
         {% block content %}
         {% endblock %}

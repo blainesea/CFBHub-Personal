@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Top 25 College Football Rankings{% endblock %}
+
+{% block content %}
+<h1>Top 25 College Football Rankings</h1>
+
+<ul>
+    {% for team in rankings %}
+    <li>
+        <strong>#{{ team.rank }}: {{ team.name }}</strong> 
+        <br>Conference: {{ team.conference }} 
+        <br>Record: {{ team.record }}
+    </li>
+    {% endfor %}
+</ul>
+
+<p>Rankings updated from the College Football API.</p>
+{% endblock %}
