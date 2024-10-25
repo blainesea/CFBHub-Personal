@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}College Football Hub{% endblock %}</title>
-    <!-- Include jQuery for AJAX -->
     <style>
         body {
             background-color: #78b6e998;
@@ -26,6 +25,44 @@
             background-color: #ddd;
             color: black;
         }
+
+        /* Dropdown styling */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            margin-top: 10px;
+            padding: 0;
+            border: 1px solid #ccc;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content {
+            left: 0;
+            width: 200px;
+        }
+
         .content {
             padding: 20px;
         }
@@ -38,8 +75,8 @@
     <style>
         .header {
             display: flex;
-            justify-content: center; /* Center horizontally */
-            align-items: center;     /* Center vertically */
+            justify-content: center;
+            align-items: center;
             text-align: center; 
         }
         .logo {
@@ -53,8 +90,14 @@
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('scores') }}">Scores</a>
             <a href="{{ url_for('teams') }}">Teams</a>
-            <a href="{{ url_for('rankings') }}">Rankings</a>
             <a href="{{ url_for('news') }}">News</a>
+            <div class="dropdown">
+                <a href="#">Rankings</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('top_25_rankings') }}">Top 25 Rankings</a>
+                    <a href="{{ url_for('conference_rankings') }}">Conference Rankings</a>
+                </div>
+            </div>
         </div>
 
         <div>
@@ -64,7 +107,7 @@
             {% else %}
                 <a href="{{ url_for('settings') }}">Settings</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
-            {% endif %}    
+            {% endif %}
         </div>
     </div>
 

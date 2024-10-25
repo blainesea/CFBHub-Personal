@@ -257,6 +257,15 @@ def fetch_and_store_rankings():
     else:
         print(f"Failed to fetch rankings. Status code: {response.status_code}")
 
+@app.route('/rankings/top25')
+def top_25_rankings():
+    rankings = Ranking.query.order_by(Ranking.rank).limit(25).all()
+    return render_template('top_25_rankings.html', rankings=rankings)
+
+@app.route('/rankings/conference')
+def conference_rankings():
+    conference_rankings = db.session.query(Ranking.conference, db.func.count(Ranking.id).label('count')).group_by(Ranking.conference).all()
+    return render_template('conference_rankings.html', conference_rankings=conference_rankings)
 
 if __name__ == '__main__':
     with app.app_context():
