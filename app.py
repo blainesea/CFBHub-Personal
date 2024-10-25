@@ -225,7 +225,7 @@ def fetch_and_store_teams():
 
 # Fetch rankings data from the API and store in the database
 def fetch_and_store_rankings():
-    url = 'https://api.collegefootballdata.com/rankings?year=2024&week=9' # Hard coded the week -- need to fix
+    url = 'https://api.collegefootballdata.com/rankings?year=2024&week=9' # Hard coded the week -- need to fix, maybe
     headers = {
         'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
     }
