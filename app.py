@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
@@ -50,13 +50,55 @@ def home():
 def scores():
     return render_template('scores.html')
 
-@app.route('/teams')
-def teams():
-    return render_template('teams.html')
+@app.route('/teamsSchedule', methods=['GET'])
+def teamsSchedule():
+    teams_data = Team.query.all()  # Fetch all teams from the database
+    return render_template('teamsSchedule.html', teams=teams_data)
+
+@app.route('/schedule', methods=['GET'])
+def schedule():
+    team_id = request.args.get('team_id')
+    team = Team.query.get(team_id)
+
+    if team is None:
+        return "Team not found", 404
+
+    url = f'https://api.collegefootballdata.com/games?year=2024'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    schedule = []
+    if response.status_code == 200:
+        games = response.json()
+        
+        for game in games:
+            if game["home_team"] == team.name or game["away_team"] == team.name:
+                schedule.append({
+                    "week": game["week"],
+                    "home_team": game["home_team"],
+                    "home_points": game.get("home_points"),
+                    "away_team": game["away_team"],
+                    "away_points": game.get("away_points"),
+                    "conference_game": game.get("conference_game", False)  # Get conference game status
+                })
+
+    return render_template('schedule.html', team=team, schedule=schedule)
+
+
 
 @app.route('/news')
 def news():
     return render_template('news.html')
+
+@app.template_filter()
+def enumerate_filter(seq):
+    return list(enumerate(seq))
+
+@app.route('/stats')
+def stats():
+    return render_template('stats.html')
 
 @app.route('/rankings')
 def rankings():
