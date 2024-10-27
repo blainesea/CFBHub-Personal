@@ -3,5 +3,31 @@
 {% block title %}Stats - My App{% endblock %}
 
 {% block content %}
-    <p>This is the stats page of the College Football Hub.</p>
+    <h2>Ranked {{ stat_type.capitalize() }} Yards</h2>
+
+    <form action="{{ url_for('stats') }}" method="get">
+        <label for="stat_select">Select Stat:</label>
+        <select id="stat_select" name="stat_type" onchange="this.form.submit()">
+            <option value="passing" {% if stat_type == 'passing' %}selected{% endif %}>Passing Yards</option>
+            <option value="rushing" {% if stat_type == 'rushing' %}selected{% endif %}>Rushing Yards</option>
+            <option value="receiving" {% if stat_type == 'receiving' %}selected{% endif %}>Receiving Yards</option>
+        </select>
+    </form>
+
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Team</th>
+        </tr>
+        {% for player in player_stats %}
+        <tr>
+            <td>{{ player.rank }}</td>
+            <td>{{ player.name }}</td>
+            <td>{{ player.team }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
 {% endblock %}
+

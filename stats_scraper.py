@@ -1,79 +1,54 @@
 import requests
 from bs4 import BeautifulSoup
 
-def fetch_individual_stats():
-    url = "https://www.ncaa.com/stats/football/fbs"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
+def scrape_player_stats(stat_type):
+    if stat_type == 'passing':
+        url = 'https://www.espn.com/college-football/stats/player/_/table/passing/sort/passingYards/dir/desc'
+    elif stat_type == 'rushing':
+        url = 'https://www.espn.com/college-football/stats/player/_/view/offense/stat/rushing/table/rushing/sort/rushingYards/dir/desc'
+    elif stat_type == 'receiving':
+        url = 'https://www.espn.com/college-football/stats/player/_/view/offense/stat/receiving/table/receiving/sort/receivingYards/dir/desc'
 
-    # Initialize lists to store stats
-    stats = {
-        "passing": [],
-        "rushing": [],
-        "scoring_offense": [],
-        "scoring_defense": []
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
     }
+    
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        return []
 
-    # Scrape Passing Yards data
-    passing_section = soup.find('h2', string="Passing Yards")
-    if passing_section:
-        passing_table = passing_section.find_next('table')
-        rows = passing_table.find_all('tr')[1:]  # Skip header row
-        for row in rows:
-            columns = row.find_all('td')
-            if columns:
-                player = {
-                    "rank": columns[0].text.strip(),
-                    "player": columns[1].text.strip(),
-                    "team": columns[2].text.strip(),
-                    "yards": columns[3].text.strip()
-                }
-                stats['passing'].append(player)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    ranks = []
 
-    # Scrape Rushing Yards data
-    rushing_section = soup.find('h2', string="Rushing Yards")
-    if rushing_section:
-        rushing_table = rushing_section.find_next('table')
-        rows = rushing_table.find_all('tr')[1:]  # Skip header row
-        for row in rows:
-            columns = row.find_all('td')
-            if columns:
-                player = {
-                    "rank": columns[0].text.strip(),
-                    "player": columns[1].text.strip(),
-                    "team": columns[2].text.strip(),
-                    "yards": columns[3].text.strip()
-                }
-                stats['rushing'].append(player)
+    table = soup.find('table')
+    if not table:
+        return []
 
-    # Scrape Scoring Offense data
-    offense_section = soup.find('h2', string="Scoring Offense")
-    if offense_section:
-        offense_table = offense_section.find_next('table')
-        rows = offense_table.find_all('tr')[1:]  # Skip header row
-        for row in rows:
-            columns = row.find_all('td')
-            if columns:
-                team = {
-                    "rank": columns[0].text.strip(),
-                    "team": columns[1].text.strip(),
-                    "points": columns[2].text.strip()
-                }
-                stats['scoring_offense'].append(team)
+    rows = table.find_all('tr')[1:]
+    for row in rows:
+        cols = row.find_all('td')
+        if len(cols) < 2:
+            continue
+        
+        rank = cols[0].text.strip()  
+        name = cols[1].find("a").text.strip() if cols[1].find("a") else cols[1].text.strip()
+        team = cols[1].find("span", class_="athleteCell__teamAbbrev").text.strip() if cols[1].find("span", class_="athleteCell__teamAbbrev") else ""  
 
-    # Scrape Scoring Defense data
-    defense_section = soup.find('h2', string="Scoring Defense")
-    if defense_section:
-        defense_table = defense_section.find_next('table')
-        rows = defense_table.find_all('tr')[1:]  # Skip header row
-        for row in rows:
-            columns = row.find_all('td')
-            if columns:
-                team = {
-                    "rank": columns[0].text.strip(),
-                    "team": columns[1].text.strip(),
-                    "points_allowed": columns[2].text.strip()
-                }
-                stats['scoring_defense'].append(team)
+        ranks.append({
+            "rank": rank,
+            "name": name,
+            "team": team
+        })
 
-    return stats
+    return ranks
+
+# if __name__ == '__main__':
+#     stat_types = ['passing', 'rushing', 'receiving']
+    
+#     for stat_type in stat_types:
+#         player_stats = scrape_player_stats(stat_type)
+
+#         print(f"Scraped {stat_type.capitalize()} Stats:")
+#         for player in player_stats:
+#             print(f"Rank: {player['rank']}, Name: {player['name']}, Team: {player['team']}")
+#         print()

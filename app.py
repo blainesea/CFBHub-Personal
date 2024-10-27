@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
+from stats_scraper import scrape_player_stats
+
 
 app = Flask(__name__)
 
@@ -96,9 +98,12 @@ def news():
 def enumerate_filter(seq):
     return list(enumerate(seq))
 
-@app.route('/stats')
+@app.route('/stats', methods=['GET'])
 def stats():
-    return render_template('stats.html')
+    stat_type = request.args.get('stat_type', 'passing') 
+    player_stats = scrape_player_stats(stat_type)
+    return render_template('stats.html', player_stats=player_stats, stat_type=stat_type)
+
 
 @app.route('/rankings')
 def rankings():
