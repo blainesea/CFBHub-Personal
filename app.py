@@ -83,7 +83,7 @@ def schedule():
                     "home_points": game.get("home_points"),
                     "away_team": game["away_team"],
                     "away_points": game.get("away_points"),
-                    "conference_game": game.get("conference_game", False)  # Get conference game status
+                    "conference_game": game.get("conference_game", False)  
                 })
 
     return render_template('schedule.html', team=team, schedule=schedule)

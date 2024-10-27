@@ -8,6 +8,12 @@ def scrape_player_stats(stat_type):
         url = 'https://www.espn.com/college-football/stats/player/_/view/offense/stat/rushing/table/rushing/sort/rushingYards/dir/desc'
     elif stat_type == 'receiving':
         url = 'https://www.espn.com/college-football/stats/player/_/view/offense/stat/receiving/table/receiving/sort/receivingYards/dir/desc'
+    elif stat_type == 'tackles':
+        url = 'https://www.espn.com/college-football/stats/player/_/view/defense/table/defensive/sort/totalTackles/dir/desc'
+    elif stat_type == 'sacks':
+        url = 'https://www.espn.com/college-football/stats/player/_/view/defense/table/defensive/sort/sacks/dir/desc'
+    elif stat_type == 'interceptions':
+        url = 'https://www.espn.com/college-football/stats/player/_/view/defense/table/defensiveInterceptions/sort/interceptions/dir/desc'
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
