@@ -3,8 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from stats_scraper import scrape_player_stats
-#from news_scraper import scrape_college_football_news
-from datetime import datetime
+# #from news_scraper import scrape_college_football_news
+# from datetime import datetime
 
 
 
@@ -91,8 +91,8 @@ def schedule():
 
     return render_template('schedule.html', team=team, schedule=schedule)
 
-@app.route('/weeklySchedule', methods=['GET'])
-def weeklySchedule():
+@app.route('/weeklyScores', methods=['GET'])
+def weeklyScores():
     week = request.args.get('week', 1)
     conference_filter = request.args.get('conference')  # Get conference from query params if any
 
@@ -118,12 +118,12 @@ def weeklySchedule():
 
     conferences = sorted(conferences)
 
-    return render_template('weeklySchedule.html', games=games, week=week, conferences=conferences, selected_conference=conference_filter)
+    return render_template('weeklyScores.html', games=games, week=week, conferences=conferences, selected_conference=conference_filter)
 
 @app.route('/news')
 def news():
-    news_articles = scrape_college_football_news()
-    return render_template('news.html', news_articles=news_articles)
+    # news_articles = scrape_college_football_news()
+    return render_template('news.html') # news_articles=news_articles)
 
 @app.template_filter()
 def enumerate_filter(seq):
