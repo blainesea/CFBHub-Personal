@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}News - My App{% endblock %}
+{% block title %}News - College Football Hub{% endblock %}
 
 {% block content %}
-    <h2>Recent News</h2>
-    <p>This is the news page of the College Football Hub.</p>
+    <h2>Latest College Football News</h2>
+    
+    <ul>
+        {% for news in news_articles %}
+            <li>
+                <a href="{{ news.link }}" target="_blank">{{ news.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('home') }}">Back to Home</a>
 {% endblock %}

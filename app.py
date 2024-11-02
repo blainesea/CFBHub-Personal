@@ -3,6 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from stats_scraper import scrape_player_stats
+#from news_scraper import scrape_college_football_news
+from datetime import datetime
+
 
 
 app = Flask(__name__)
@@ -88,11 +91,40 @@ def schedule():
 
     return render_template('schedule.html', team=team, schedule=schedule)
 
+@app.route('/weeklySchedule', methods=['GET'])
+def weeklySchedule():
+    week = request.args.get('week', 1)
+    conference_filter = request.args.get('conference')  # Get conference from query params if any
 
+    url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    games = []
+    conferences = set()
+    if response.status_code == 200:
+        all_games = response.json()
+        
+        for game in all_games:
+            if game.get("home_conference"):
+                conferences.add(game["home_conference"])
+            if game.get("away_conference"):
+                conferences.add(game["away_conference"])
+
+            if not conference_filter or game.get("home_conference") == conference_filter or game.get("away_conference") == conference_filter:
+                games.append(game)
+
+    conferences = sorted(conferences)
+
+    return render_template('weeklySchedule.html', games=games, week=week, conferences=conferences, selected_conference=conference_filter)
 
 @app.route('/news')
 def news():
-    return render_template('news.html')
+    # Call your news scraper function here
+    news_articles = scrape_college_football_news()
+    return render_template('news.html', news_articles=news_articles)
 
 @app.template_filter()
 def enumerate_filter(seq):
