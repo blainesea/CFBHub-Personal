@@ -122,7 +122,6 @@ def weeklySchedule():
 
 @app.route('/news')
 def news():
-    # Call your news scraper function here
     news_articles = scrape_college_football_news()
     return render_template('news.html', news_articles=news_articles)
 
@@ -141,6 +140,21 @@ def stats():
 def rankings():
     rankings_data = Ranking.query.order_by(Ranking.rank).all()
     return render_template('rankings.html', rankings=rankings_data)
+
+@app.route('/predictions', methods=['GET'])
+def predictions():
+    week = request.args.get('week', 1, type=int)
+    url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    games = []
+    if response.status_code == 200:
+        games = response.json()
+
+    return render_template('predictions.html', games=games, week=week)
 
 @app.route('/settings')
 def settings():

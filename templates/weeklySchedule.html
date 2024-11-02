@@ -3,7 +3,6 @@
 {% block content %}
     <h1>Weekly Schedule - Week {{ week }}</h1>
 
-    <!-- Week and Conference Selection Form -->
     <form action="{{ url_for('weeklySchedule') }}" method="get">
         <label for="week">Select Week:</label>
         <input type="number" id="week" name="week" value="{{ week }}" min="1" max="15">
