@@ -7,6 +7,7 @@ url = "https://www.jhowell.net/cf/scores/Sked2024.htm"
 
 # Request the webpage
 response = requests.get(url)
+
 if response.status_code == 200:
     soup = BeautifulSoup(response.content, 'html.parser')
 
