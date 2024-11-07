@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
+from database import db
+from models import Team, Ranking, User 
+from fetchers import fetch_and_store_teams, fetch_and_store_rankings
 from stats_scraper import scrape_player_stats
 # #from news_scraper import scrape_college_football_news
 # from datetime import datetime
-
-
 
 app = Flask(__name__)
 
@@ -14,35 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///football_hub.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
 
-db = SQLAlchemy(app)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    favorite_team = db.Column(db.String(100))
-
-    def __repr__(self):
-        return f'<User {self.username}>'
-    
-class Team(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
-    abbreviation = db.Column(db.String(10))  # Optional
-    conference = db.Column(db.String(100))  # Optional
-
-    def __repr__(self):
-        return f'<Team {self.name}>'
-    
-class Ranking(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    rank = db.Column(db.Integer, nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    conference = db.Column(db.String(100))
-    record = db.Column(db.String(20))
-
-    def __repr__(self):
-        return f'<Ranking {self.name} - Rank {self.rank}>'
+db.init_app(app)
 
 @app.route('/')
 def home():
@@ -283,72 +256,6 @@ def update_favorite_team():
 def logout():
     session.pop('username', None)
     return redirect(url_for('home'))
-
-# Function to fetch teams from the API and populate the database
-def fetch_and_store_teams():
-
-    if Team.query.first():
-        print("Teams already exist in the database. Skipping API request.")
-        return
-    
-    url = 'https://api.collegefootballdata.com/teams'
-    headers = {
-        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
-    }
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        teams_data = response.json()
-#        print(teams_data)
-        
-        for team in teams_data:
-            team_name = team['school']
-            abbreviation = team.get('abbreviation', None)
-            conference = team.get('conference', None)
-
-            existing_team = Team.query.filter_by(name=team_name).first()
-            if not existing_team:
-                new_team = Team(name=team_name, abbreviation=abbreviation, conference=conference)
-                db.session.add(new_team)
-
-        db.session.commit()
-        print("Teams have been added to the database.")
-    else:
-        print(f"Failed to fetch teams. Status code: {response.status_code}")
-
-# Fetch rankings data from the API and store in the database
-def fetch_and_store_rankings():
-    url = 'https://api.collegefootballdata.com/rankings?year=2024&week=9' # Hard coded the week -- need to fix, maybe
-    headers = {
-        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
-    }
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        rankings_data = response.json()
-        
-        ap_poll = rankings_data[0]['polls'][0]['ranks']
-
-        for team in ap_poll:
-            rank = team['rank']
-            name = team['school']
-            conference = team.get('conference', 'N/A')
-            record = team.get('record', 'N/A')
-
-            existing_team = Ranking.query.filter_by(name=name).first()
-
-            if existing_team:
-                existing_team.rank = rank
-                existing_team.conference = conference
-                existing_team.record = record
-            else:
-                new_team = Ranking(rank=rank, name=name, conference=conference, record=record)
-                db.session.add(new_team)
-
-        db.session.commit()
-        print("Rankings updated in the database.")
-    else:
-        print(f"Failed to fetch rankings. Status code: {response.status_code}")
 
 @app.route('/rankings/top25')
 def top_25_rankings():
