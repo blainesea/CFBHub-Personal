@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from database import db
 from models import Team, Ranking, User 
-from fetchers import fetch_and_store_teams, fetch_and_store_rankings
+from fetchers import fetch_and_store_teams, fetch_and_store_rankings, fetch_team_schedule
 import feedparser
 from stats_scraper import scrape_player_stats
 # #from news_scraper import scrape_college_football_news
@@ -21,9 +21,13 @@ db.init_app(app)
 @app.route('/')
 def home():
     user = None
+    schedule = None
     if 'username' in session:
         user = User.query.filter_by(username=session['username']).first()
-    return render_template('home.html', user=user)
+        if user and user.favorite_team:
+            schedule = fetch_team_schedule(user.favorite_team)
+
+    return render_template('home.html', user=user, schedule=schedule)
 
 @app.route('/scores')
 def scores():

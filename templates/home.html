@@ -3,21 +3,30 @@
 {% block title %}Home - College Football Hub{% endblock %}
 
 {% block content %}
-    <h2>Welcome to the Home Page!</h2>
-    <p>This is the home page of the College Football Hub.</p>
+<h2>Welcome to the Home Page!</h2>
+<p>This is the home page of the College Football Hub.</p>
 
-    <!-- Check if the user is logged in -->
-    {% if 'username' in session %}
-        <!-- Display the user's favorite team if it's set -->
-        <p>Welcome back, {{ session['username'] }}!</p>
-        
-        {% if user.favorite_team %}
-            <p>Your favorite team is: <strong>{{ user.favorite_team }}</strong></p>
+{% if user %}
+    <p>Welcome back, {{ user.username }}!</p>
+    
+    {% if user.favorite_team %}
+        <p>Your favorite team is: <strong>{{ user.favorite_team }}</strong></p>
+
+        {% if schedule %}
+            <h3>{{ user.favorite_team }}'s Schedule:</h3>
+            <ul>
+                {% for game in schedule %}
+                    <li>{{ game.date }}: {{ game.opponent }} ({{ game.location }})</li>
+                {% endfor %}
+            </ul>
         {% else %}
-            <p>You haven't selected a favorite team yet. Go to <a href="{{ url_for('settings') }}">settings</a> to choose one.</p>
+            <p>Schedule data is not available at this time.</p>
         {% endif %}
     {% else %}
-        <p>Please <a href="{{ url_for('login') }}">log in</a> to personalize your experience.</p>
+        <p>You haven't selected a favorite team yet. Go to <a href="{{ url_for('settings') }}">settings</a> to choose one.</p>
     {% endif %}
-    
+{% else %}
+    <p>Please <a href="{{ url_for('login') }}">log in</a> to personalize your experience.</p>
+{% endif %}
+
 {% endblock %}

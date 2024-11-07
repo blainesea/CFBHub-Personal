@@ -67,3 +67,25 @@ def fetch_and_store_rankings():
         print("Rankings updated in the database.")
     else:
         print(f"Failed to fetch rankings. Status code: {response.status_code}")
+
+def fetch_team_schedule(team_name):
+    url = f'https://api.collegefootballdata.com/games?year=2024&seasonType=regular&team={team_name}'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        schedule_data = response.json()
+        schedule = [
+            {
+                "date": game['start_date'],
+                "opponent": game['home_team'] if game['away_team'] == team_name else game['away_team'],
+                "location": "Home" if game['home_team'] == team_name else "Away"
+            }
+            for game in schedule_data
+        ]
+        return schedule
+    else:
+        print(f"Failed to fetch schedule. Status code: {response.status_code}")
+        return None
