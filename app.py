@@ -5,6 +5,7 @@ import requests
 from database import db
 from models import Team, Ranking, User 
 from fetchers import fetch_and_store_teams, fetch_and_store_rankings
+import feedparser
 from stats_scraper import scrape_player_stats
 # #from news_scraper import scrape_college_football_news
 # from datetime import datetime
@@ -95,8 +96,23 @@ def weeklyScores():
 
 @app.route('/news')
 def news():
-    # news_articles = scrape_college_football_news()
-    return render_template('news.html') # news_articles=news_articles)
+    url = 'https://www.espn.com/espn/rss/ncf/news'
+    feed = feedparser.parse(url)
+    
+    if feed.bozo:
+        return "Failed to retrieve news."
+
+    news_articles = []
+    
+    for entry in feed.entries:
+        news_articles.append({
+            'title': entry.title,
+            'link': entry.link,
+            'summary': entry.summary,
+            'published': entry.published if 'published' in entry else 'N/A'
+        })
+
+    return render_template('news.html', news_articles=news_articles)
 
 @app.template_filter()
 def enumerate_filter(seq):
