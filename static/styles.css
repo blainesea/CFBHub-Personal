@@ -1,0 +1,74 @@
+/* General container styles */
+.container {
+    max-width: 500px;
+    margin: 50px auto;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Header styles */
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+/* Error message styles */
+.error-message {
+    color: red;
+    text-align: center;
+}
+
+/* Form group styles */
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Input field styles */
+.form-control {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Button styles */
+.btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+/* Link styles */
+a {
+    color: #007BFF;
+}
+
+/* Icon styles */
+.password-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Dropdown list item styles */
+#team_results li {
+    padding: 8px;
+    cursor: pointer;
+}
+
+#team_results li:hover,
+#team_results li.active {
+    background-color: #ddd;
+}

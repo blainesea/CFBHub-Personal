@@ -3,23 +3,38 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<h1>Login</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+<div class="container">
+    <h2>Login</h2>
+    {% if error %}
+        <p class="error-message">{{ error }}</p>
+    {% endif %}
+    <form action="{{ url_for('login') }}" method="POST">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+            <span onclick="togglePasswordVisibility('password', this)" class="password-icon">👁️</span>
+        </div>
+        <button type="submit" class="btn">Login</button>
+    </form>
+    <p style="text-align: center; margin-top: 15px;">Don't have an account? <a href="{{ url_for('create_account') }}">Create one here</a>.</p>
+</div>
 
-<form action="{{ url_for('login') }}" method="POST">
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required>
-    </div>
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required>
-    </div>
-    <button type="submit">Login</button>
-</form>
-
-<p>Don't have an account? <a href="{{ url_for('create_account') }}">Create one here</a>.</p>
+<script>
+    function togglePasswordVisibility(fieldId, icon) {
+        const field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+            icon.textContent = '🙈';
+        } else {
+            field.type = "password";
+            icon.textContent = '👁️';
+        }
+    }
+</script>
 {% endblock %}

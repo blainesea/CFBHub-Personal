@@ -3,63 +3,150 @@
 {% block title %}Settings Page{% endblock %}
 
 {% block content %}
-<h1>Settings Page</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
-<p>Welcome, {{ user.username }}! Personalize your account here.</p>
+<div class="container">
+    <h2>Settings</h2>
 
-<div class="search-container" style="position: relative; display: inline-block;">
-    <input type="text" id="team_search" placeholder="Search for a team" style="width: 200px; position: relative; z-index: 1;">
-    <ul id="team_results" style="list-style-type: none; padding: 0; margin: 0; display: none; border: 1px solid #ccc; background-color: white; width: 200px; max-height: 150px; overflow-y: auto; position: absolute; top: 100%; left: 0; z-index: 1000;"></ul>
+    <div class="user-info" style="margin-bottom: 20px;">
+        <h4>Your Favorite Team:</h4>
+        <p><strong>{{ user.favorite_team }}</strong></p>
+    </div>
+
+    <div class="form-section">
+        <h3>{% if user.favorite_team %}Change Favorite Team{% else %}Choose Favorite Team{% endif %}</h3>
+        <div class="form-group" style="position: relative;">
+            <input type="text" id="team_search" placeholder="Search for a team" class="form-control">
+            <ul id="team_results" style="list-style-type: none; padding: 0; margin: 0; display: none; border: 1px solid #ccc; background-color: white; width: 100%; max-height: 150px; overflow-y: auto; position: absolute; top: 100%; left: 0; z-index: 1000;"></ul>
+        </div>
+        <form id="favorite_team_form" action="/update_favorite_team" method="POST" style="display: none; margin-top: 10px;">
+            <input type="hidden" id="favorite_team_id" name="favorite_team_id">
+            <button type="submit" class="btn">Set as Favorite Team</button>
+        </form>
+        <div id="selected_favorite_team" style="margin-top: 15px; display: none;">
+            <p>Your selected favorite team is: <strong id="display_favorite_team"></strong></p>
+        </div>
+    </div>
+
+    <div class="form-section" style="margin-top: 30px;">
+        <h3>Change Password</h3>
+        <form action="/update_password" method="POST" onsubmit="return validatePasswordChange();">
+            <div class="form-group">
+                <label for="current_password">Current Password:</label>
+                <input type="password" name="current_password" id="current_password" class="form-control" required>
+                <span onclick="togglePasswordVisibility('current_password', this)" class="password-icon">👁️</span>
+            </div>
+            <div class="form-group">
+                <label for="new_password">New Password:</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" required>
+                <span onclick="togglePasswordVisibility('new_password', this)" class="password-icon">👁️</span>
+            </div>
+            <div class="form-group">
+                <label for="confirm_new_password">Confirm New Password:</label>
+                <input type="password" name="confirm_new_password" id="confirm_new_password" class="form-control" required onkeyup="checkNewPasswordMatch()">
+                <span onclick="togglePasswordVisibility('confirm_new_password', this)" class="password-icon">👁️</span>
+            </div>
+            <p id="newPasswordMatchMessage" class="error-message" style="display: none;">Passwords do not match.</p>
+            <button type="submit" class="btn">Change Password</button>
+        </form>
+    </div>
 </div>
-
-<form id="favorite_team_form" action="/update_favorite_team" method="POST" style="display:none; margin-top: 10px;">
-    <input type="hidden" id="favorite_team_id" name="favorite_team_id">
-    <button type="submit" id="set_favorite_btn">Set as Favorite Team</button>
-</form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function(){
-        $('#team_search').on('keyup', function(){
+    $(document).ready(function() {
+        let currentIndex = -1;
+        const teamResults = $('#team_results');
+
+        $('#team_search').on('keyup', function(e) {
             let query = $(this).val();
 
             if (query.length > 2) {
                 $.ajax({
                     url: '/search_teams',
                     type: 'GET',
-                    data: {query: query},
+                    data: { query: query },
                     success: function(data) {
-                        $('#team_results').empty().show();
+                        teamResults.empty().show();
+                        currentIndex = -1;
                         data.teams.forEach(function(team) {
-                            $('#team_results').append(`<li data-team-id="${team.id}" style="padding: 8px; cursor: pointer;">${team.name}</li>`);
+                            teamResults.append(`<li data-team-id="${team.id}" tabindex="0">${team.name}</li>`);
                         });
                     }
                 });
             } else {
-                $('#team_results').empty().hide();
+                teamResults.empty().hide();
             }
         });
 
-        $('#team_results').on('click', 'li', function(){
-            let teamId = $(this).data('team-id');
-            let teamName = $(this).text();
+        $('#team_search').on('keydown', function(e) {
+            const items = teamResults.find('li');
+            if (items.length > 0) {
+                if (e.key === 'ArrowDown') {
+                    currentIndex = (currentIndex + 1) % items.length;
+                    items.removeClass('active');
+                    items.eq(currentIndex).addClass('active').focus();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    currentIndex = (currentIndex - 1 + items.length) % items.length;
+                    items.removeClass('active');
+                    items.eq(currentIndex).addClass('active').focus();
+                    e.preventDefault();
+                } else if (e.key === 'Enter' && currentIndex !== -1) {
+                    items.eq(currentIndex).click();
+                }
+            }
+        });
+
+        teamResults.on('click', 'li', function() {
+            const teamId = $(this).data('team-id');
+            const teamName = $(this).text();
 
             $('#favorite_team_id').val(teamId);
-
             $('#team_search').val(teamName);
-
-            $('#team_results').hide();
-
+            teamResults.hide();
             $('#favorite_team_form').show();
+            $('#display_favorite_team').text(teamName);
+            $('#selected_favorite_team').show();
         });
 
-        $('#team_search').on('focus', function() {
-            if ($(this).val().length > 2) {
-                $('#team_results').show();
-            }
+        teamResults.on('mouseenter', 'li', function() {
+            teamResults.find('li').removeClass('active');
+            $(this).addClass('active');
         });
     });
-</script>
 
-<p><a href="{{ url_for('home') }}">Back to Home</a></p>
+    function togglePasswordVisibility(fieldId, icon) {
+        const field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+            icon.textContent = '🙈';
+        } else {
+            field.type = "password";
+            icon.textContent = '👁️';
+        }
+    }
+
+    function checkNewPasswordMatch() {
+        const newPassword = document.getElementById('new_password').value;
+        const confirmNewPassword = document.getElementById('confirm_new_password').value;
+        const message = document.getElementById('newPasswordMatchMessage');
+        
+        if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
+            message.style.display = 'block';
+        } else {
+            message.style.display = 'none';
+        }
+    }
+
+    function validatePasswordChange() {
+        const newPassword = document.getElementById('new_password').value;
+        const confirmNewPassword = document.getElementById('confirm_new_password').value;
+        if (newPassword !== confirmNewPassword) {
+            alert('Passwords do not match. Please try again.');
+            return false;
+        }
+        return true;
+    }
+</script>
 {% endblock %}
