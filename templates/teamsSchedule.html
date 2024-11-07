@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Select a Team</h1>
+<form action="/schedule" method="get">
+    <label for="team-select">Choose a team:</label>
+    <select id="team-select" name="team_id">
+        {% for team in teams %}
+            <option value="{{ team.id }}">{{ team.name }} ({{ team.abbreviation }})</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="View Schedule">
+</form>
+{% endblock %}

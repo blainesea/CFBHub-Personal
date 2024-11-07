@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Stats - My App{% endblock %}
+
+{% block content %}
+    <h2>Ranked {{ stat_type.capitalize() }} Yards</h2>
+
+    <form action="{{ url_for('stats') }}" method="get">
+        <label for="stat_select">Select Stat:</label>
+        <select id="stat_select" name="stat_type" onchange="this.form.submit()">
+            <option value="passing" {% if stat_type == 'passing' %}selected{% endif %}>Passing Yards</option>
+            <option value="rushing" {% if stat_type == 'rushing' %}selected{% endif %}>Rushing Yards</option>
+            <option value="receiving" {% if stat_type == 'receiving' %}selected{% endif %}>Receiving Yards</option>
+            <option value="tackles" {% if stat_type == 'tackles' %}selected{% endif %}>Tackles</option>
+            <option value="sacks" {% if stat_type == 'sacks' %}selected{% endif %}>Sacks</option>
+            <option value="interceptions" {% if stat_type == 'interceptions' %}selected{% endif %}>Interceptions</option>
+        </select>
+    </form>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="background-color: #f0f0f0;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Rank</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Team</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if player_stats %}
+                {% for player in player_stats %}
+                    <tr style="background-color: {% if loop.index0 % 2 == 0 %}#ffffff{% else %}#f9f9f9{% endif %};">
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.rank }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.name }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.team }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3" style="padding: 10px; text-align: center; color: #666;">No player stats available for this category.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Game Predictions - Week {{ week }}</h1>
+
+<!-- Form to select week -->
+<form action="{{ url_for('predictions') }}" method="get" style="margin-bottom: 20px;">
+    <label for="week">Choose a week:</label>
+    <input type="number" id="week" name="week" min="1" max="15" value="{{ week }}">
+    <button type="submit">View Predictions</button>
+</form>
+
+<table style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr style="background-color: #f0f0f0;">
+            <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Home Team</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Home Win Probability</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Away Team</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Away Win Probability</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Home Elo (Pre/Post)</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Away Elo (Pre/Post)</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Excitement Index</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if games %}
+            {% for game in games %}
+                <tr style="background-color: {% if loop.index0 % 2 == 0 %}#ffffff{% else %}#f9f9f9{% endif %};">
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.start_date[5:7] }}-{{ game.start_date[8:10] if game.start_date }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.home_team }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ (game.home_post_win_prob | float * 100) | round(1) }}%
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.away_team }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ (game.away_post_win_prob | float * 100) | round(1) }}%
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ game.home_pregame_elo }} / {{ game.home_postgame_elo if game.home_postgame_elo else 'N/A' }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ game.away_pregame_elo }} / {{ game.away_postgame_elo if game.away_postgame_elo else 'N/A' }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ game.excitement_index if game.excitement_index else 'N/A' }}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="9" style="padding: 10px; text-align: center; color: #666;">No predictions available for this week.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

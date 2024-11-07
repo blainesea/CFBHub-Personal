@@ -1,7 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
+from stats_scraper import scrape_player_stats
+# #from news_scraper import scrape_college_football_news
+# from datetime import datetime
+
+
 
 app = Flask(__name__)
 
@@ -50,18 +55,106 @@ def home():
 def scores():
     return render_template('scores.html')
 
-@app.route('/teams')
-def teams():
-    return render_template('teams.html')
+@app.route('/teamsSchedule', methods=['GET'])
+def teamsSchedule():
+    teams_data = Team.query.all()  # Fetch all teams from the database
+    return render_template('teamsSchedule.html', teams=teams_data)
+
+@app.route('/schedule', methods=['GET'])
+def schedule():
+    team_id = request.args.get('team_id')
+    team = Team.query.get(team_id)
+
+    if team is None:
+        return "Team not found", 404
+
+    url = f'https://api.collegefootballdata.com/games?year=2024'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    schedule = []
+    if response.status_code == 200:
+        games = response.json()
+        
+        for game in games:
+            if game["home_team"] == team.name or game["away_team"] == team.name:
+                schedule.append({
+                    "week": game["week"],
+                    "home_team": game["home_team"],
+                    "home_points": game.get("home_points"),
+                    "away_team": game["away_team"],
+                    "away_points": game.get("away_points"),
+                    "conference_game": game.get("conference_game", False)  
+                })
+
+    return render_template('schedule.html', team=team, schedule=schedule)
+
+@app.route('/weeklyScores', methods=['GET'])
+def weeklyScores():
+    week = request.args.get('week', 1)
+    conference_filter = request.args.get('conference')  # Get conference from query params if any
+
+    url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    games = []
+    conferences = set()
+    if response.status_code == 200:
+        all_games = response.json()
+        
+        for game in all_games:
+            if game.get("home_conference"):
+                conferences.add(game["home_conference"])
+            if game.get("away_conference"):
+                conferences.add(game["away_conference"])
+
+            if not conference_filter or game.get("home_conference") == conference_filter or game.get("away_conference") == conference_filter:
+                games.append(game)
+
+    conferences = sorted(conferences)
+
+    return render_template('weeklyScores.html', games=games, week=week, conferences=conferences, selected_conference=conference_filter)
 
 @app.route('/news')
 def news():
-    return render_template('news.html')
+    # news_articles = scrape_college_football_news()
+    return render_template('news.html') # news_articles=news_articles)
+
+@app.template_filter()
+def enumerate_filter(seq):
+    return list(enumerate(seq))
+
+@app.route('/stats', methods=['GET'])
+def stats():
+    stat_type = request.args.get('stat_type', 'passing') 
+    player_stats = scrape_player_stats(stat_type)
+    return render_template('stats.html', player_stats=player_stats, stat_type=stat_type)
+
 
 @app.route('/rankings')
 def rankings():
     rankings_data = Ranking.query.order_by(Ranking.rank).all()
     return render_template('rankings.html', rankings=rankings_data)
+
+@app.route('/predictions', methods=['GET'])
+def predictions():
+    week = request.args.get('week', 1, type=int)
+    url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    games = []
+    if response.status_code == 200:
+        games = response.json()
+
+    return render_template('predictions.html', games=games, week=week)
 
 @app.route('/settings')
 def settings():
