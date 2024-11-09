@@ -10,7 +10,7 @@
             or team.conference == "Mountain West" or team.conference == "Mid-American"
             or team.conference == "Big Ten" or team.conference == "Pac-12" or team.conference == "Sun Belt"
             or team.conference == "FBS Independent" or team.conference == "ACC" or team.conference == "American"
-            or team.conference == "Conference USA" %}
+            or team.conference == "Conference USA" or team.name == "UAB"%}
                 <option value="{{ team.id }}">{{ team.name }} ({{team.abbreviation}}) ({{ team.conference }})</option>
             {% endif %}
         {% endfor %}
