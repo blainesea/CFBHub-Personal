@@ -134,8 +134,8 @@ def rankings():
     rankings_data = Ranking.query.order_by(Ranking.rank).all()
     return render_template('rankings.html', rankings=rankings_data)
 
-@app.route('/predictions', methods=['GET'])
-def predictions():
+@app.route('/gameProjections', methods=['GET'])
+def gameProjections():
     week = request.args.get('week', 1, type=int)
     url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
     headers = {
@@ -147,7 +147,7 @@ def predictions():
     if response.status_code == 200:
         games = response.json()
 
-    return render_template('predictions.html', games=games, week=week)
+    return render_template('gameProjections.html', games=games, week=week)
 
 @app.route('/settings')
 def settings():

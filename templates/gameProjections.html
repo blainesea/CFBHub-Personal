@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Game Predictions - Week {{ week }}</h1>
+<h1>Game Projections - Week {{ week }}</h1>
 
 <!-- Form to select week -->
-<form action="{{ url_for('predictions') }}" method="get" style="margin-bottom: 20px;">
+<form action="{{ url_for('gameProjections') }}" method="get" style="margin-bottom: 20px;">
     <label for="week">Choose a week:</label>
     <input type="number" id="week" name="week" min="1" max="15" value="{{ week }}">
-    <button type="submit">View Predictions</button>
+    <button type="submit">View Projections</button>
 </form>
 
 <table style="width: 100%; border-collapse: collapse;">
