@@ -147,6 +147,17 @@ def gameProjections():
     if response.status_code == 200:
         games = response.json()
 
+        games = sorted(games, key=lambda game: (
+            (game.get('home_pregame_elo') in [None, '-'] and game.get('home_postgame_elo') in [None, '-'] and 
+             game.get('away_pregame_elo') in [None, '-'] and game.get('away_postgame_elo') in [None, '-'] and
+             game.get('excitement_index') in [None, '-']),
+             
+            (game.get('home_pregame_elo') in [None, '-'] and game.get('home_postgame_elo') in [None, '-'] or
+             game.get('away_pregame_elo') in [None, '-'] and game.get('away_postgame_elo') in [None, '-']) and
+             game.get('excitement_index') not in [None, '-'],
+             
+            game.get('excitement_index') in [None, '-']
+        ))
     return render_template('gameProjections.html', games=games, week=week)
 
 @app.route('/settings')

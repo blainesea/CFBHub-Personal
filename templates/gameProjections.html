@@ -16,11 +16,11 @@
             <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Home Team</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Home Win Probability</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Strength Rating (Pregame/Postgame)</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Away Team</th>
             <th style="padding: 10px; border: 1px solid #ddd;">Away Win Probability</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Home Elo (Pre/Post)</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Away Elo (Pre/Post)</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Excitement Index</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Strength Rating (Pregame/Postgame)</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Competitive Rating</th>
         </tr>
     </thead>
     <tbody>
@@ -32,18 +32,18 @@
                     <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
                         {{ (game.home_post_win_prob | float * 100) | round(1) }}%
                     </td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                        {{ game.home_pregame_elo }} / {{ game.home_postgame_elo if game.home_postgame_elo else '-' }}
+                    </td>
                     <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.away_team }}</td>
                     <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
                         {{ (game.away_post_win_prob | float * 100) | round(1) }}%
                     </td>
                     <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ game.home_pregame_elo }} / {{ game.home_postgame_elo if game.home_postgame_elo else 'N/A' }}
+                        {{ game.away_pregame_elo }} / {{ game.away_postgame_elo if game.away_postgame_elo else '-' }}
                     </td>
                     <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ game.away_pregame_elo }} / {{ game.away_postgame_elo if game.away_postgame_elo else 'N/A' }}
-                    </td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ game.excitement_index if game.excitement_index else 'N/A' }}
+                        {{ game.excitement_index[:5] if game.excitement_index else '-' }}
                     </td>
                 </tr>
             {% endfor %}
