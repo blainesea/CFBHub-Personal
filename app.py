@@ -6,8 +6,8 @@ from database import db
 from models import Team, Ranking, User 
 from fetchers import fetch_and_store_teams, fetch_and_store_rankings, fetch_team_schedule
 import feedparser
-from stats_scraper import scrape_player_stats
-# #from news_scraper import scrape_college_football_news
+# from stats_scraper import scrape_player_stats
+from ncaa_scraper import scrape_ncaa_stats
 # from datetime import datetime
 
 app = Flask(__name__)
@@ -122,12 +122,16 @@ def news():
 def enumerate_filter(seq):
     return list(enumerate(seq))
 
+# @app.route('/stats', methods=['GET'])
+# def stats():
+#     stat_type = request.args.get('stat_type', 'passing') 
+#     player_stats = scrape_player_stats(stat_type)
+#     return render_template('stats.html', player_stats=player_stats, stat_type=stat_type)
 @app.route('/stats', methods=['GET'])
 def stats():
-    stat_type = request.args.get('stat_type', 'passing') 
-    player_stats = scrape_player_stats(stat_type)
+    stat_type = request.args.get('stat_type', 'passing')
+    player_stats = scrape_ncaa_stats(stat_type)
     return render_template('stats.html', player_stats=player_stats, stat_type=stat_type)
-
 
 @app.route('/rankings')
 def rankings():

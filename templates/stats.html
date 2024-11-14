@@ -23,6 +23,8 @@
                 <th style="padding: 10px; border: 1px solid #ddd;">Rank</th>
                 <th style="padding: 10px; border: 1px solid #ddd;">Name</th>
                 <th style="padding: 10px; border: 1px solid #ddd;">Team</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Year</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">{{ stat_type.capitalize() }}</th>
             </tr>
         </thead>
         <tbody>
@@ -32,11 +34,13 @@
                         <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.rank }}</td>
                         <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.name }}</td>
                         <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.team }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.year }}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ player.stat }}</td>
                     </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="3" style="padding: 10px; text-align: center; color: #666;">No player stats available for this category.</td>
+                    <td colspan="6" style="padding: 10px; text-align: center; color: #666;">No player stats available for this category.</td>
                 </tr>
             {% endif %}
         </tbody>
