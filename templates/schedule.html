@@ -1,37 +1,49 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Schedule for {{ team.name }}</h1>
-<table style="width: 100%; border-collapse: collapse;">
+<h1>Schedule</h1>
+
+<form method="get">
+    <label for="team_id">Select Team:</label>
+    <select id="team_id" name="team_id">
+        <option value="">All Teams</option>
+        {% for team in teams %}
+        <option value="{{ team.id }}" {% if team_id == team.id %}selected{% endif %}>
+            {{ team.name }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="week">Select Week:</label>
+    <input type="number" id="week" name="week" value="{{ week }}" min="1" max="15">
+
+    <button type="submit">Filter</button>
+</form>
+
+<table>
     <thead>
-        <tr style="background-color: #f0f0f0;">
-            <th style="padding: 10px; border: 1px solid #ddd;">Week</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Home Team</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Home Points</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Away Team</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Away Points</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Conference Game</th>
+        <tr>
+            <th>Week</th>
+            <th>Home Team</th>
+            <th>Home Points</th>
+            <th>Away Team</th>
+            <th>Away Points</th>
+            <th>Over/Under</th>
+            <th>Conference Game</th>
         </tr>
     </thead>
     <tbody>
-        {% if schedule %}
-            {% for game in schedule %}
-                <tr style="background-color: {% if loop.index0 % 2 == 0 %}#ffffff{% else %}#f9f9f9{% endif %};">
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.week }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.start_date }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.home_team }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.home_points if game.home_points is not none else '-' }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.away_team }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.away_points if game.away_points is not none else '-' }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ 'Yes' if game.conference_game else 'No' }}</td>
-                </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-                <td colspan="7" style="padding: 10px; text-align: center; color: #666;">No games available for this team.</td>
-            </tr>
-        {% endif %}
+        {% for game in schedule %}
+        <tr>
+            <td>{{ game.week }}</td>
+            <td>{{ game.home_team }}</td>
+            <td>{{ game.home_points or '-' }}</td>
+            <td>{{ game.away_team }}</td>
+            <td>{{ game.away_points or '-' }}</td>
+            <td>{{ game.over_under or '-' }}</td>
+            <td>{{ 'Yes' if game.conference_game else 'No' }}</td>
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 {% endblock %}

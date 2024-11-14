@@ -33,76 +33,65 @@ def home():
 def scores():
     return render_template('scores.html')
 
-@app.route('/teamsSchedule', methods=['GET'])
-def teamsSchedule():
-    teams_data = Team.query.all()  # Fetch all teams from the database
-    return render_template('teamsSchedule.html', teams=teams_data)
-
 @app.route('/schedule', methods=['GET'])
 def schedule():
     team_id = request.args.get('team_id')
-    team = Team.query.get(team_id)
+    week = request.args.get('week', get_current_week(), type=int)
+    conference_filter = request.args.get('conference')
 
-    if team is None:
-        return "Team not found", 404
+    team = Team.query.get(team_id) if team_id else None
 
     url = f'https://api.collegefootballdata.com/games?year=2024'
+    if week:
+        url += f'&week={week}'
+
     headers = {
         'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
     }
     response = requests.get(url, headers=headers)
 
     schedule = []
+    conferences = set()
+
     if response.status_code == 200:
         games = response.json()
-        
+
         for game in games:
-            if game["home_team"] == team.name or game["away_team"] == team.name:
+            if game.get("home_conference"):
+                conferences.add(game["home_conference"])
+            if game.get("away_conference"):
+                conferences.add(game["away_conference"])
+
+            if (not team or game["home_team"] == team.name or game["away_team"] == team.name) and (
+                not conference_filter or 
+                game.get("home_conference") == conference_filter or 
+                game.get("away_conference") == conference_filter):
+
                 schedule.append({
-                    "week": game["week"],
-                    "home_team": game["home_team"],
+                    "week": game.get("week"),
+                    "home_team": game.get("home_team"),
                     "home_points": game.get("home_points"),
-                    "away_team": game["away_team"],
+                    "away_team": game.get("away_team"),
                     "away_points": game.get("away_points"),
-                    "conference_game": game.get("conference_game", False)  
+                    "conference_game": game.get("conference_game", False),
+                    "over_under": game.get("over_under")  # Include betting odds if available
                 })
 
-    return render_template('schedule.html', team=team, schedule=schedule)
+    conferences = sorted(conferences)
+
+    return render_template('schedule.html', 
+                           schedule=schedule, 
+                           team=team, 
+                           week=week, 
+                           conferences=conferences, 
+                           selected_conference=conference_filter,
+                           teams=Team.query.all())
 
 def get_current_week():
     season_start = datetime(2024, 8, 26)  # Adjust based on the actual season start date
     today = datetime.today()
     weeks_since_start = (today - season_start).days // 7 + 1
     return max(1, min(weeks_since_start, 15))
-
-@app.route('/weeklyScores', methods=['GET'])
-def weeklyScores():
-    week = request.args.get('week', get_current_week())
-    conference_filter = request.args.get('conference')  # Get conference from query params if any
-
-    url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
-    headers = {
-        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
-    }
-    response = requests.get(url, headers=headers)
-
-    games = []
-    conferences = set()
-    if response.status_code == 200:
-        all_games = response.json()
-        
-        for game in all_games:
-            if game.get("home_conference"):
-                conferences.add(game["home_conference"])
-            if game.get("away_conference"):
-                conferences.add(game["away_conference"])
-
-            if not conference_filter or game.get("home_conference") == conference_filter or game.get("away_conference") == conference_filter:
-                games.append(game)
-
-    conferences = sorted(conferences)
-
-    return render_template('weeklyScores.html', games=games, week=week, conferences=conferences, selected_conference=conference_filter)
 
 @app.route('/news')
 def news():
@@ -366,7 +355,6 @@ def conference_rankings():
                 elif points < opponent_points:
                     standings[conference][team]["losses"] += 1
 
-    # Sort teams by wins within each conference
     standings = {
         conf: dict(sorted(teams.items(), key=lambda x: x[1]["wins"], reverse=True))
         for conf, teams in standings.items()
@@ -380,7 +368,6 @@ def conference_rankings():
         allowed_conferences=allowed_conferences,
         selected_conference=selected_conference
     )
-
 
 if __name__ == '__main__':
     with app.app_context():
