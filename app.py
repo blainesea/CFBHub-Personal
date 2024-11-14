@@ -8,7 +8,7 @@ from fetchers import fetch_and_store_teams, fetch_and_store_rankings, fetch_team
 import feedparser
 # from stats_scraper import scrape_player_stats
 from ncaa_scraper import scrape_ncaa_stats
-# from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -69,9 +69,15 @@ def schedule():
 
     return render_template('schedule.html', team=team, schedule=schedule)
 
+def get_current_week():
+    season_start = datetime(2024, 8, 26)  # Adjust based on the actual season start date
+    today = datetime.today()
+    weeks_since_start = (today - season_start).days // 7 + 1
+    return max(1, min(weeks_since_start, 15))
+
 @app.route('/weeklyScores', methods=['GET'])
 def weeklyScores():
-    week = request.args.get('week', 1)
+    week = request.args.get('week', get_current_week())
     conference_filter = request.args.get('conference')  # Get conference from query params if any
 
     url = f'https://api.collegefootballdata.com/games?year=2024&week={week}'
