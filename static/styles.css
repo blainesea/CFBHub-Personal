@@ -72,3 +72,61 @@ a {
 #team_results li.active {
     background-color: #ddd;
 }
+
+/* Conference ranking/standings styles */
+
+.conference-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.conference-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.conference-links {
+    display: flex;
+    gap: 10px;
+}
+
+.conference-links a {
+    padding: 8px 12px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.conference-links a.active,
+.conference-links a:hover {
+    background-color: #0056b3;
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.standings-table th, .standings-table td {
+    text-align: center;
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+.standings-table th {
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px;
+}

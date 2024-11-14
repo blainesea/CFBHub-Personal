@@ -303,10 +303,84 @@ def top_25_rankings():
     rankings = Ranking.query.order_by(Ranking.rank).limit(25).all()
     return render_template('top_25_rankings.html', rankings=rankings)
 
-@app.route('/rankings/conference')
+@app.route('/conference_rankings')
 def conference_rankings():
-    conference_rankings = db.session.query(Ranking.conference, db.func.count(Ranking.id).label('count')).group_by(Ranking.conference).all()
-    return render_template('conference_rankings.html', conference_rankings=conference_rankings)
+    url = 'https://api.collegefootballdata.com/games?year=2024'
+    headers = {
+        'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        return "Failed to retrieve conference standings."
+
+    games = response.json()
+    standings = {}
+
+    allowed_conferences = [
+        "ACC",
+        "American Athletic",
+        "Big 12",
+        "Big Ten",
+        "Conference USA",
+        "FBS Independents",
+        "Mid-American",
+        "Mountain West",
+        "Pac-12",
+        "SEC",
+        "Sun Belt"
+    ]
+
+    for game in games:
+        if game.get("conference_game"):
+            home_team = game["home_team"]
+            away_team = game["away_team"]
+            home_points = game["home_points"] or 0
+            away_points = game["away_points"] or 0
+            home_conference = game["home_conference"]
+            away_conference = game["away_conference"]
+
+            for team, points, opponent_points, conference in [
+                (home_team, home_points, away_points, home_conference),
+                (away_team, away_points, home_points, away_conference),
+            ]:
+                if conference not in allowed_conferences:
+                    continue
+
+                if conference not in standings:
+                    standings[conference] = {}
+
+                if team not in standings[conference]:
+                    standings[conference][team] = {
+                        "wins": 0,
+                        "losses": 0,
+                        "points_for": 0,
+                        "points_against": 0
+                    }
+
+                standings[conference][team]["points_for"] += points
+                standings[conference][team]["points_against"] += opponent_points
+
+                if points > opponent_points:
+                    standings[conference][team]["wins"] += 1
+                elif points < opponent_points:
+                    standings[conference][team]["losses"] += 1
+
+    # Sort teams by wins within each conference
+    standings = {
+        conf: dict(sorted(teams.items(), key=lambda x: x[1]["wins"], reverse=True))
+        for conf, teams in standings.items()
+    }
+
+    selected_conference = request.args.get('conference', allowed_conferences[0])
+
+    return render_template(
+        'conference_rankings.html',
+        standings=standings,
+        allowed_conferences=allowed_conferences,
+        selected_conference=selected_conference
+    )
+
 
 if __name__ == '__main__':
     with app.app_context():

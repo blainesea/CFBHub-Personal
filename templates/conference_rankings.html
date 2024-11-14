@@ -1,12 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Conference Rankings{% endblock %}
-
 {% block content %}
-<h2>Conference Rankings</h2>
-<ul>
-    {% for conference, count in conference_rankings %}
-        <li>{{ conference }}: {{ count }} teams ranked</li>
-    {% endfor %}
-</ul>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+<div class="conference-header">
+    <h1>{{ selected_conference }}</h1>
+    <div class="conference-links">
+        {% for conference in allowed_conferences %}
+        <a href="?conference={{ conference }}" class="{% if conference == selected_conference %}active{% endif %}">
+            {{ conference }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<table class="standings-table">
+    <thead>
+        <tr>
+            <th>Team</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Points For</th>
+            <th>Points Against</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for team, stats in standings[selected_conference].items() %}
+        <tr>
+            <td>{{ team }}</td>
+            <td>{{ stats.wins }}</td>
+            <td>{{ stats.losses }}</td>
+            <td>{{ stats.points_for }}</td>
+            <td>{{ stats.points_against }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
