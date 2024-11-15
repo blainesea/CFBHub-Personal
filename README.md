@@ -6,7 +6,8 @@ Project Setup and Instructions:
 4. pip install flask_sqlalchemy
 5. pip install beautifulsoup4 requests
 6. pip install feedparser
-7. python app.py
+7. pip install apscheduler
+8. python app.py
 
 End Program:
 Press Ctrl + C to stop the application

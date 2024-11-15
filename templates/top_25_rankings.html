@@ -1,19 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Top 25 College Football Rankings{% endblock %}
+{% block title %}{{ selected_poll }} Rankings{% endblock %}
 
 {% block content %}
-<h1>Top 25 College Football Rankings</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
-<ul>
-    {% for team in rankings %}
-    <li>
-        <strong>#{{ team.rank }}: {{ team.name }}</strong> 
-        <br>Conference: {{ team.conference }} 
-        <br>Record: {{ team.record }}
-    </li>
-    {% endfor %}
-</ul>
+<div class="rankings-header">
+    <div class="poll-display">
+        {{ selected_poll }}
+    </div>
 
-<p>Rankings updated from the College Football API.</p>
+    <div class="poll-links">
+        <a href="?poll=AFCA Coaches" class="{% if selected_poll == 'AFCA Coaches' %}active{% endif %}">AFCA Coaches</a>
+        <a href="?poll=AP" class="{% if selected_poll == 'AP' %}active{% endif %}">AP Poll</a>
+        <a href="?poll=CFP" class="{% if selected_poll == 'CFP' %}active{% endif %}">College Football Playoff</a>
+    </div>
+</div>
+
+<table class="rankings-table">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Conference</th>
+            <th>Record</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for team in rankings %}
+        <tr>
+            <td>{{ team.rank }}</td>
+            <td>{{ team.name }}</td>
+            <td>{{ team.conference }}</td>
+            <td>{{ team.record }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
+
