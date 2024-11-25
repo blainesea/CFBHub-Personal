@@ -11,6 +11,8 @@ from ncaa_scraper import scrape_ncaa_stats
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
+API_KEY = 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+
 def create_app():
     app = Flask(__name__)
 
@@ -103,21 +105,18 @@ def create_app():
     @app.route('/search', methods=['GET'])
     def search():
         search_query = request.args.get('search_query', '').strip()  # Retrieve and sanitize the search query
-        
         schedule = []  # To store the schedule data
-        
+        record = {}  # To store the record data
+
         if search_query:  # Only proceed if there's a query
-            # API URL for schedule (modify as needed for your API structure)
-            url = f'https://api.collegefootballdata.com/games?year=2024'
+            # API URL for schedule
+            schedule_url = f'https://api.collegefootballdata.com/games?year=2024'
+            headers = {'Authorization': API_KEY}
 
-            headers = {
-                'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
-            }
-
-            # Make API request
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                games = response.json()
+            # Fetch schedule data
+            schedule_response = requests.get(schedule_url, headers=headers)
+            if schedule_response.status_code == 200:
+                games = schedule_response.json()
                 # Filter games for the searched team
                 for game in games:
                     if game["home_team"] == search_query or game["away_team"] == search_query:
@@ -130,10 +129,31 @@ def create_app():
                             "date": game.get("start_date")
                         })
             else:
-                print("Error fetching API data:", response.status_code)
-        
-        return render_template('search.html', search_query=search_query, schedule=schedule)
+                print("Error fetching schedule data:", schedule_response.status_code)
 
+            # API URL for records
+            records_url = 'https://api.collegefootballdata.com/records'
+            params = {'year': 2024, 'seasonType': 'regular'}
+
+            # Fetch record data
+            records_response = requests.get(records_url, headers=headers, params=params)
+            if records_response.status_code == 200:
+                records = records_response.json()
+                for team_record in records:
+                    if team_record["team"] == search_query:
+                        record = {
+                            "conference": team_record.get("conference", "N/A"),
+                            "total": team_record.get("total", {}),
+                            "homeGames": team_record.get("homeGames", {}),
+                            "awayGames": team_record.get("awayGames", {}),
+                            "conferenceGames": team_record.get("conferenceGames", {}),
+                            "expectedWins": team_record.get("expectedWins", 0)
+                        }
+                        break
+            else:
+                print("Error fetching records data:", records_response.status_code)
+
+        return render_template('search.html', search_query=search_query, schedule=schedule, record=record)
 
     @app.route('/news')
     def news():

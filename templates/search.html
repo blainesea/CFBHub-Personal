@@ -46,8 +46,33 @@
 
                 <div class="col-md-5">
                     <div class="card" style="padding: 20px; min-height: 120px; border-radius: 15px;">
-                        <h5>Additional Info</h5>
-                        <p>This space can be used to add more information about the game, such as highlights, player stats, etc.</p>
+                        <h5>Team Stats</h5>
+                        {% if record %}
+                            <p><strong>Conference:</strong> {{ record.conference }}</p>
+                            <p><strong>Total Games:</strong> {{ record.total.games }}</p>
+                            <ul>
+                                <li>Wins: {{ record.total.wins }}</li>
+                                <li>Losses: {{ record.total.losses }}</li>
+                            </ul>
+                            <p><strong>Home Games:</strong> {{ record.homeGames.games }}</p>
+                            <ul>
+                                <li>Wins: {{ record.homeGames.wins }}</li>
+                                <li>Losses: {{ record.homeGames.losses }}</li>
+                            </ul>
+                            <p><strong>Away Games:</strong> {{ record.awayGames.games }}</p>
+                            <ul>
+                                <li>Wins: {{ record.awayGames.wins }}</li>
+                                <li>Losses: {{ record.awayGames.losses }}</li>
+                            </ul>
+                            <p><strong>Conference Games:</strong> {{ record.conferenceGames.games }}</p>
+                            <ul>
+                                <li>Wins: {{ record.conferenceGames.wins }}</li>
+                                <li>Losses: {{ record.conferenceGames.losses }}</li>
+                            </ul>
+                            <p><strong>Expected Wins:</strong> {{ record.expectedWins }}</p>
+                        {% else %}
+                            <p>No additional record information found for this team.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
