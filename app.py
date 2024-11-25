@@ -99,6 +99,41 @@ def create_app():
         today = datetime.today()
         weeks_since_start = (today - season_start).days // 7 + 1
         return max(1, min(weeks_since_start, 15))
+    
+    @app.route('/search', methods=['GET'])
+    def search():
+        search_query = request.args.get('search_query', '').strip()  # Retrieve and sanitize the search query
+        
+        schedule = []  # To store the schedule data
+        
+        if search_query:  # Only proceed if there's a query
+            # API URL for schedule (modify as needed for your API structure)
+            url = f'https://api.collegefootballdata.com/games?year=2024'
+
+            headers = {
+                'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+            }
+
+            # Make API request
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                games = response.json()
+                # Filter games for the searched team
+                for game in games:
+                    if game["home_team"] == search_query or game["away_team"] == search_query:
+                        schedule.append({
+                            "week": game.get("week"),
+                            "home_team": game.get("home_team"),
+                            "home_points": game.get("home_points"),
+                            "away_team": game.get("away_team"),
+                            "away_points": game.get("away_points"),
+                            "date": game.get("start_date")
+                        })
+            else:
+                print("Error fetching API data:", response.status_code)
+        
+        return render_template('search.html', search_query=search_query, schedule=schedule)
+
 
     @app.route('/news')
     def news():
