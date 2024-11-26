@@ -1,57 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Matchup Analysis - Week {{ week }}</h1>
+<div class="container mt-5">
+    <h1 class="mb-4">Matchup Analysis - Week {{ week }}</h1>
 
-<!-- Form to select week -->
-<form action="{{ url_for('gameProjections') }}" method="get" style="margin-bottom: 20px;">
-    <label for="week">Choose a week:</label>
-    <input type="number" id="week" name="week" min="1" max="15" value="{{ week }}">
-    <button type="submit">View Projections</button>
-</form>
+    <!-- Form to select week -->
+    <form action="{{ url_for('gameProjections') }}" method="get" class="mb-4 d-flex align-items-center">
+        <label for="week" class="mr-2">Choose a week:</label>
+        <input type="number" id="week" name="week" class="form-control form-control-sm mr-2" min="1" max="15" value="{{ week }}" style="width: 80px;">
+        <button type="submit" class="btn btn-primary btn-sm">View Projections</button>
+    </form>
 
-<table style="width: 100%; border-collapse: collapse;">
-    <thead>
-        <tr style="background-color: #f0f0f0;">
-            <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Home Team</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Home Win Probability</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Strength Rating (Pregame/Postgame)</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Away Team</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Away Win Probability</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Strength Rating (Pregame/Postgame)</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Competitive Rating</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% if games %}
-            {% for game in games %}
-                <tr style="background-color: {% if loop.index0 % 2 == 0 %}#ffffff{% else %}#f9f9f9{% endif %};">
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.start_date[5:7] }}-{{ game.start_date[8:10] if game.start_date }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.home_team }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ (game.home_post_win_prob | float * 100) | round(1) }}%
-                    </td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ game.home_pregame_elo }} / {{ game.home_postgame_elo if game.home_postgame_elo else '-' }}
-                    </td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ game.away_team }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ (game.away_post_win_prob | float * 100) | round(1) }}%
-                    </td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ game.away_pregame_elo }} / {{ game.away_postgame_elo if game.away_postgame_elo else '-' }}
-                    </td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                        {{ game.excitement_index[:5] if game.excitement_index else '-' }}
-                    </td>
+    <!-- Game Projections Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th class="text-center">Date</th>
+                    <th class="text-center">Home Team</th>
+                    <th class="text-center">Home Win Probability</th>
+                    <th class="text-center">Strength Rating (Pregame/Postgame)</th>
+                    <th class="text-center">Away Team</th>
+                    <th class="text-center">Away Win Probability</th>
+                    <th class="text-center">Strength Rating (Pregame/Postgame)</th>
+                    <th class="text-center">Competitive Rating</th>
                 </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-                <td colspan="9" style="padding: 10px; text-align: center; color: #666;">No predictions available for this week.</td>
-            </tr>
-        {% endif %}
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                {% if games %}
+                    {% for game in games %}
+                        <tr class="{% if loop.index0 % 2 == 0 %}table-light{% else %}table-secondary{% endif %}">
+                            <td class="text-center">{{ game.start_date[5:7] }}-{{ game.start_date[8:10] if game.start_date }}</td>
+                            <td class="text-center">{{ game.home_team }}</td>
+                            <td class="text-center">
+                                {{ (game.home_post_win_prob | float * 100) | round(1) }}%
+                            </td>
+                            <td class="text-center">
+                                {{ game.home_pregame_elo }} / {{ game.home_postgame_elo if game.home_postgame_elo else '-' }}
+                            </td>
+                            <td class="text-center">{{ game.away_team }}</td>
+                            <td class="text-center">
+                                {{ (game.away_post_win_prob | float * 100) | round(1) }}%
+                            </td>
+                            <td class="text-center">
+                                {{ game.away_pregame_elo }} / {{ game.away_postgame_elo if game.away_postgame_elo else '-' }}
+                            </td>
+                            <td class="text-center">
+                                {{ game.excitement_index[:5] if game.excitement_index else '-' }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No predictions available for this week.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
