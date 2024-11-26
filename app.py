@@ -165,8 +165,27 @@ def create_app():
 
         return render_template('search.html', search_query=search_query, schedule=schedule, record=record, roster=roster)
 
-    
-    
+
+    @app.route('/roster/<team>', methods=['GET'])
+    def roster(team):
+        headers = {'Authorization': API_KEY}
+        roster = []  # To store the roster data
+
+        # API URL for roster
+        roster_url = 'https://api.collegefootballdata.com/roster'
+        params = {'team': team, 'year': 2024}  # Filter roster by team
+        roster_response = requests.get(roster_url, headers=headers, params=params)
+
+        if roster_response.status_code == 200:
+            roster = roster_response.json()  # Get the full roster list
+        else:
+            print("Error fetching roster data:", roster_response.status_code)
+
+        return render_template('roster.html', team=team, roster=roster)
+
+
+
+
     @app.route('/news')
     def news():
         url = 'https://www.espn.com/espn/rss/ncf/news'

@@ -7,6 +7,9 @@
     {% if search_query %}
         <h2 class="text-align mb-4">{{ search_query }} Team Page</h2>
 
+        <!-- Roster Button -->
+        <a href="{{ url_for('roster', team=search_query) }}" class="btn btn-primary mb-4">View Roster</a>
+
         {% if schedule %}
         <div class="container">
             <div class="row">
@@ -70,22 +73,6 @@
                                 <li>Losses: {{ record.conferenceGames.losses }}</li>
                             </ul>
                             <p><strong>Expected Wins:</strong> {{ record.expectedWins }}</p>
-
-                            <!-- Roster Button -->
-                            <button id="rosterButton" class="btn btn-primary mt-3" onclick="toggleRoster()">View Roster</button>
-
-                            <!-- Roster List (Initially hidden) -->
-                            <div id="rosterList" style="display:none; margin-top: 20px;">
-                                <h5>Players:</h5>
-                                <ul class="list-group">
-                                    {% for player in roster %}
-                                        <li class="list-group-item">
-                                            {{ player.first_name }} {{ player.last_name }} - {{ player.position or 'Position Unknown' }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-
                         {% else %}
                             <p>No additional record information found for this team.</p>
                         {% endif %}
@@ -100,21 +87,4 @@
         <p class="text-center">Please enter a search query.</p>
     {% endif %}
 </div>
-
-<!-- JavaScript to toggle the roster visibility -->
-<script>
-    function toggleRoster() {
-        var rosterList = document.getElementById('rosterList');
-        var rosterButton = document.getElementById('rosterButton');
-
-        if (rosterList.style.display === "none") {
-            rosterList.style.display = "block";
-            rosterButton.innerText = "Hide Roster";  
-        } else {
-            rosterList.style.display = "none";
-            rosterButton.innerText = "View Roster";  
-        }
-    }
-</script>
-
 {% endblock %}
