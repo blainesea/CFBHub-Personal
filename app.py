@@ -107,6 +107,7 @@ def create_app():
         search_query = request.args.get('search_query', '').strip()  # Retrieve and sanitize the search query
         schedule = []  # To store the schedule data
         record = {}  # To store the record data
+        roster = []  # To store the roster data
 
         if search_query:  # Only proceed if there's a query
             # API URL for schedule
@@ -153,8 +154,19 @@ def create_app():
             else:
                 print("Error fetching records data:", records_response.status_code)
 
-        return render_template('search.html', search_query=search_query, schedule=schedule, record=record)
+            # API URL for roster
+            roster_url = 'https://api.collegefootballdata.com/roster'
+            params = {'team': search_query}  # Filter roster by team
+            roster_response = requests.get(roster_url, headers=headers, params=params)
+            if roster_response.status_code == 200:
+                roster = roster_response.json()  # Get the full roster list
+            else:
+                print("Error fetching roster data:", roster_response.status_code)
 
+        return render_template('search.html', search_query=search_query, schedule=schedule, record=record, roster=roster)
+
+    
+    
     @app.route('/news')
     def news():
         url = 'https://www.espn.com/espn/rss/ncf/news'

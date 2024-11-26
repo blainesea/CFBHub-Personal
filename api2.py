@@ -2,7 +2,7 @@ import requests
 import json
 
 # API endpoint for schedules
-url = 'https://api.collegefootballdata.com/records'
+url = 'https://api.collegefootballdata.com/players'
 params = {
     'year': 2024,  # Specify the year you're interested in
     'seasonType': 'regular'  # Regular season games
