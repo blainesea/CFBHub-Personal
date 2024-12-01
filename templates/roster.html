@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Roster{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">{{ team }} Roster</h2>
+    <a href="{{ url_for('search', search_query=team) }}" class="btn btn-secondary mb-4">Back to Team Page</a>
+    
+    <div class="row">
+        {% for player in roster %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ player.first_name }} {{ player.last_name }}
+                    </h5>
+                    <p class="card-text">
+                        Position: {{ player.position or 'Position Unknown' }}
+                    </p>
+                    <button class="btn btn-primary btn-sm" onclick="togglePlayerInfo('{{ player.first_name }} {{ player.last_name }}', this)">
+                        See Info
+                    </button>
+                    <div class="player-info mt-3" style="display: none;">
+                        <ul class="list-group">
+                            <li class="list-group-item">Weight: {{ player.weight }} lbs</li>
+                            <li class="list-group-item">Height: {{ player.height }} inches</li>
+                            <li class="list-group-item">Jersey Number: {{ player.jersey }}</li>
+                            <li class="list-group-item">Year: {{ player.year }}</li>
+                            <li class="list-group-item">Home City: {{ player.home_city }}</li>
+                            <li class="list-group-item">Home State: {{ player.home_state }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function togglePlayerInfo(playerName, button) {
+        const infoContainer = button.nextElementSibling; // Locate the info container
+
+        if (infoContainer.style.display === "none") {
+            infoContainer.style.display = "block";
+            button.textContent = "Hide Info";
+        } else {
+            infoContainer.style.display = "none";
+            button.textContent = "See Info";
+        }
+    }
+</script>
+{% endblock %}

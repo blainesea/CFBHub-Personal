@@ -11,6 +11,8 @@ from ncaa_scraper import scrape_ncaa_stats
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
+API_KEY = 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+
 def create_app():
     app = Flask(__name__)
 
@@ -99,6 +101,90 @@ def create_app():
         today = datetime.today()
         weeks_since_start = (today - season_start).days // 7 + 1
         return max(1, min(weeks_since_start, 15))
+    
+    @app.route('/search', methods=['GET'])
+    def search():
+        search_query = request.args.get('search_query', '').strip()  # Retrieve and sanitize the search query
+        schedule = []  # To store the schedule data
+        record = {}  # To store the record data
+        roster = []  # To store the roster data
+
+        if search_query:  # Only proceed if there's a query
+            # API URL for schedule
+            schedule_url = f'https://api.collegefootballdata.com/games?year=2024'
+            headers = {'Authorization': API_KEY}
+
+            # Fetch schedule data
+            schedule_response = requests.get(schedule_url, headers=headers)
+            if schedule_response.status_code == 200:
+                games = schedule_response.json()
+                # Filter games for the searched team
+                for game in games:
+                    if game["home_team"] == search_query or game["away_team"] == search_query:
+                        schedule.append({
+                            "week": game.get("week"),
+                            "home_team": game.get("home_team"),
+                            "home_points": game.get("home_points"),
+                            "away_team": game.get("away_team"),
+                            "away_points": game.get("away_points"),
+                            "date": game.get("start_date")
+                        })
+            else:
+                print("Error fetching schedule data:", schedule_response.status_code)
+
+            # API URL for records
+            records_url = 'https://api.collegefootballdata.com/records'
+            params = {'year': 2024, 'seasonType': 'regular'}
+
+            # Fetch record data
+            records_response = requests.get(records_url, headers=headers, params=params)
+            if records_response.status_code == 200:
+                records = records_response.json()
+                for team_record in records:
+                    if team_record["team"] == search_query:
+                        record = {
+                            "conference": team_record.get("conference", "N/A"),
+                            "total": team_record.get("total", {}),
+                            "homeGames": team_record.get("homeGames", {}),
+                            "awayGames": team_record.get("awayGames", {}),
+                            "conferenceGames": team_record.get("conferenceGames", {}),
+                            "expectedWins": team_record.get("expectedWins", 0)
+                        }
+                        break
+            else:
+                print("Error fetching records data:", records_response.status_code)
+
+            # API URL for roster
+            roster_url = 'https://api.collegefootballdata.com/roster'
+            params = {'team': search_query}  # Filter roster by team
+            roster_response = requests.get(roster_url, headers=headers, params=params)
+            if roster_response.status_code == 200:
+                roster = roster_response.json()  # Get the full roster list
+            else:
+                print("Error fetching roster data:", roster_response.status_code)
+
+        return render_template('search.html', search_query=search_query, schedule=schedule, record=record, roster=roster)
+
+
+    @app.route('/roster/<team>', methods=['GET'])
+    def roster(team):
+        headers = {'Authorization': API_KEY}
+        roster = []  # To store the roster data
+
+        # API URL for roster
+        roster_url = 'https://api.collegefootballdata.com/roster'
+        params = {'team': team, 'year': 2024}  # Filter roster by team
+        roster_response = requests.get(roster_url, headers=headers, params=params)
+
+        if roster_response.status_code == 200:
+            roster = roster_response.json()  # Get the full roster list
+        else:
+            print("Error fetching roster data:", roster_response.status_code)
+
+        return render_template('roster.html', team=team, roster=roster)
+
+
+
 
     @app.route('/news')
     def news():

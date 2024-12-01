@@ -16,6 +16,13 @@ def scrape_ncaa_stats(stat_type):
         elif stat_type == 'tackles':
             url = 'https://www.ncaa.com/stats/football/fbs/current/individual/34'
             columns = [0, 1, 2, 3, 8]
+        elif stat_type == 'sacks':
+            url = 'https://www.ncaa.com/stats/football/fbs/current/individual/36'
+            columns = [0, 1, 2, 3, 9]
+        elif stat_type == 'receiving':
+            url = 'https://www.ncaa.com/stats/football/fbs/current/individual/455'
+            columns = [0, 1, 2, 3, 7]
+                
         else:
             raise ValueError("Invalid stat_type provided")
 
