@@ -50,6 +50,7 @@ def create_app():
 
         team = Team.query.get(team_id) if team_id else None
 
+        # Fetch schedule data
         url = f'https://api.collegefootballdata.com/games?year=2024'
         if week:
             url += f'&week={week}'
@@ -58,9 +59,23 @@ def create_app():
             'Authorization': 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
         }
         response = requests.get(url, headers=headers)
-
+        
         schedule = []
         conferences = set()
+
+        # Fetch betting lines
+        lines_url = f'https://api.collegefootballdata.com/lines?year=2024'
+        if week:
+            lines_url += f'&week={week}'
+
+        lines_response = requests.get(lines_url, headers=headers)
+        lines_data = lines_response.json() if lines_response.status_code == 200 else []
+
+        # Map game IDs to betting lines
+        betting_lines = {
+            line["id"]: line["lines"][0].get("overUnder") if line["lines"] else None
+            for line in lines_data
+        }
 
         if response.status_code == 200:
             games = response.json()
@@ -76,6 +91,9 @@ def create_app():
                     game.get("home_conference") == conference_filter or 
                     game.get("away_conference") == conference_filter):
 
+                    # Add betting data to each game
+                    over_under = betting_lines.get(game.get("id"))
+
                     schedule.append({
                         "week": game.get("week"),
                         "home_team": game.get("home_team"),
@@ -83,7 +101,7 @@ def create_app():
                         "away_team": game.get("away_team"),
                         "away_points": game.get("away_points"),
                         "conference_game": game.get("conference_game", False),
-                        "over_under": game.get("over_under")  # Include betting odds if available
+                        "over_under": over_under or '-'  # Include betting odds if available
                     })
 
         conferences = sorted(conferences)
@@ -95,6 +113,7 @@ def create_app():
                             conferences=conferences, 
                             selected_conference=conference_filter,
                             teams=Team.query.all())
+
 
     def get_current_week():
         season_start = datetime(2024, 8, 26)  # Adjust based on the actual season start date
