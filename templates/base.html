@@ -142,7 +142,7 @@
             </form>
         </div>
 
-        <div>
+        <div style="display: flex; align-items: center; justify-content: flex-end;">
             {% if 'username' not in session %}
                 <a href="{{ url_for('login') }}">Login</a>
                 <a href="{{ url_for('create_account') }}">Create Account</a>
@@ -150,8 +150,38 @@
                 <a href="{{ url_for('settings') }}">Settings</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             {% endif %}
+
+            <!-- User Manual Dropdown -->
+            <div class="dropdown" style="margin-left: 15px; position: relative;">
+                <a href="#" class="btn btn-light" style="font-size: 0.8em; padding: 5px;">❓</a>
+                <div class="dropdown-content" 
+                    style="
+                        position: absolute; 
+                        top: 40px; 
+                        right: 0; 
+                        background-color: white; 
+                        border: 1px solid #ccc; 
+                        padding: 10px; 
+                        font-size: 0.9em; 
+                        width: 250px; 
+                        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                        z-index: 1000;
+                    ">
+                    <p><strong>Tab 1:</strong> Home - Navigate to the homepage.</p>
+                    <p><strong>Tab 2:</strong> Schedule - View team schedules.</p>
+                    <p><strong>Tab 3:</strong> Matchup Analysis - Analyze upcoming games.</p>
+                    <p><strong>Tab 4:</strong> Stats - Explore individual player stats.</p>
+                    <p><strong>Tab 5:</strong> News - Stay updated with the latest news.</p>
+                    <p><strong>Tab 6:</strong> Rankings - See team rankings.</p>
+                    <p><strong>Search:</strong> Search bar - search for teams to see their schedule, roster, and roster info</p>
+                </div>
+            </div>
         </div>
     </div>
+
+
+
+
 
     <section class="content">
         {% block content %}
