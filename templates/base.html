@@ -8,25 +8,66 @@
     <title>{% block title %}College Football Hub{% endblock %}</title>
     <style>
         body {
-            background-color: #66ade878;
+            background-color: #7BAFD4;
             font-family: Arial, sans-serif;
         }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #7BAFD4;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            height: 175px;
+            margin: 0;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+
         .navbar {
             display: flex;
             background-color: #333;
             justify-content: space-between;
-            padding: 10px;
+            padding: 10px 20px;
+            align-items: center;
         }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand img {
+            height: 100px;
+            margin-right: 10px;
+        }
+
         .navbar a {
             color: white;
             padding: 14px 20px;
             text-decoration: none;
-            text-align: center;
         }
+
         .navbar a:hover {
             background-color: #ddd;
             color: black;
         }
+
         .search-bar {
             display: flex;
             align-items: center;
@@ -52,7 +93,6 @@
             background-color: #ddd;
         }
 
-        /* Dropdown styling */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -62,60 +102,30 @@
             display: none;
             position: absolute;
             background-color: white;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
             z-index: 1;
-            margin-top: 10px;
-            padding: 0;
-            border: 1px solid #ccc;
         }
 
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #ddd;
+        .dropdown-content p {
+            padding: 10px;
+            margin: 0;
+            border-bottom: 1px solid #eee;
         }
 
         .dropdown:hover .dropdown-content {
             display: block;
         }
-
-        .dropdown-content {
-            left: 0;
-            width: 200px;
-        }
-
-        .content {
-            padding: 20px;
-        }
-        .bg-primary {
-            background-color: #123da9d6 !important;
-        }
-        
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="{{ url_for('static', filename='images/cfbhub.png') }}" alt="Profile Photo" class="logo">
+        <div class="header-brand">
+            <img src="{{ url_for('static', filename='images/cfbhub.png') }}" alt="Logo" class="logo">
+            <span class="header-title">College Football Hub</span>
+        </div>
     </div>
-    <style>
-        .header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center; 
-        }
-        .logo {
-            width: 140px;
-            height: auto;
-            margin-left: 10px;
-        }
-    </style>
-    <div class="navbar">
+
+    <nav class="navbar">
         <div>
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('schedule') }}">Schedule</a>
@@ -130,19 +140,37 @@
                 </div>
             </div>
         </div>
-
         <div class="search-bar">
-            <form action="{{ url_for('search') }}" method="get" style="display: flex; align-items: center;">
-                <input 
-                    type="text" 
-                    name="search_query" 
-                    placeholder="Search teams" 
-                >
+            <form action="{{ url_for('search') }}" method="get">
+                <input type="text" name="search_query" placeholder="Search teams">
                 <button type="submit">Search</button>
             </form>
         </div>
-
-        <div style="display: flex; align-items: center; justify-content: flex-end;">
+        <div class="dropdown" style="margin-left: 15px; position: relative;">
+            <a href="#" class="btn btn-light" style="font-size: 1.2em; padding: 5px;">❓</a>
+            <div class="dropdown-content" 
+                style="
+                    position: absolute; 
+                    top: 40px; 
+                    right: 0; 
+                    background-color: white; 
+                    border: 1px solid #ccc; 
+                    padding: 10px; 
+                    font-size: 0.9em; 
+                    width: 250px; 
+                    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                    z-index: 1000;
+                ">
+                <p><strong>Tab 1:</strong> Home - Navigate to the homepage.</p>
+                <p><strong>Tab 2:</strong> Schedule - View team schedules.</p>
+                <p><strong>Tab 3:</strong> Matchup Analysis - Analyze upcoming games.</p>
+                <p><strong>Tab 4:</strong> Stats - Explore individual player stats.</p>
+                <p><strong>Tab 5:</strong> News - Stay updated with the latest news.</p>
+                <p><strong>Tab 6:</strong> Rankings - See team rankings.</p>
+                <p><strong>Search:</strong> Search bar - search for teams to see their schedule, roster, and roster info</p>
+            </div>
+        </div>        
+        <div style="display: flex; align-items: center;">
             {% if 'username' not in session %}
                 <a href="{{ url_for('login') }}">Login</a>
                 <a href="{{ url_for('create_account') }}">Create Account</a>
@@ -150,43 +178,13 @@
                 <a href="{{ url_for('settings') }}">Settings</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             {% endif %}
-
-            <!-- User Manual Dropdown -->
-            <div class="dropdown" style="margin-left: 15px; position: relative;">
-                <a href="#" class="btn btn-light" style="font-size: 0.8em; padding: 5px;">❓</a>
-                <div class="dropdown-content" 
-                    style="
-                        position: absolute; 
-                        top: 40px; 
-                        right: 0; 
-                        background-color: white; 
-                        border: 1px solid #ccc; 
-                        padding: 10px; 
-                        font-size: 0.9em; 
-                        width: 250px; 
-                        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-                        z-index: 1000;
-                    ">
-                    <p><strong>Tab 1:</strong> Home - Navigate to the homepage.</p>
-                    <p><strong>Tab 2:</strong> Schedule - View team schedules.</p>
-                    <p><strong>Tab 3:</strong> Matchup Analysis - Analyze upcoming games.</p>
-                    <p><strong>Tab 4:</strong> Stats - Explore individual player stats.</p>
-                    <p><strong>Tab 5:</strong> News - Stay updated with the latest news.</p>
-                    <p><strong>Tab 6:</strong> Rankings - See team rankings.</p>
-                    <p><strong>Search:</strong> Search bar - search for teams to see their schedule, roster, and roster info</p>
-                </div>
-            </div>
         </div>
-    </div>
-
-
-
-
+    </nav>
 
     <section class="content">
         {% block content %}
         {% endblock %}
-    </section> 
-
+    </section>
 </body>
+
 </html>
