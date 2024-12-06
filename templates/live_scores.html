@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Live Scores{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="text-center">Live Scores</h1>
+
+    <table class="table table-bordered table-hover mt-4">
+        <thead class="thead-light">
+            <tr>
+                <th>Week</th>
+                <th>Date</th>
+                <th>Home Team</th>
+                <th>Home Points</th>
+                <th>Away Team</th>
+                <th>Away Points</th>
+            </tr>
+        </thead>
+        <tbody id="live-scores-body">
+            <tr><td colspan="6" class="text-center">Loading live scores...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function fetchLiveScores() {
+        console.log('Fetching live scores...');
+        fetch('/live_scores_data')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched data:', data);
+                const tableBody = document.getElementById('live-scores-body');
+                tableBody.innerHTML = '';
+
+                if (data.live_games && data.live_games.length > 0) {
+                    data.live_games.forEach(game => {
+                        const row = `
+                            <tr>
+                                <td>${game.week}</td>
+                                <td>${new Date(game.start_date).toLocaleString()}</td>
+                                <td>${game.home_team}</td>
+                                <td>${game.home_points}</td>
+                                <td>${game.away_team}</td>
+                                <td>${game.away_points}</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center">No live games currently available.</td>
+                        </tr>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error fetching live scores:', error));
+    }
+
+    setInterval(fetchLiveScores, 5000);
+    document.addEventListener('DOMContentLoaded', fetchLiveScores);
+</script>
+
+{% endblock %}

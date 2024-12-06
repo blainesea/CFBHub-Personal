@@ -12,6 +12,64 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
 API_KEY = 'Bearer OaVFD68X/G/TZu4gHMxr/ApYaot/HP/quea1h2FSetWo2sUz/QpxIvafH5MZpqee'
+scheduler = BackgroundScheduler()
+live_scores_cache = []
+is_live_game_active = False
+
+
+TESTING = True  # Set to False for showcase
+
+def fetch_live_scores():
+    global live_scores_cache, is_live_game_active
+
+    if TESTING:
+        print("Fetching live scores (mock data)...")
+        if not live_scores_cache:
+            live_scores_cache = [
+                {
+                    "week": 5,
+                    "start_date": "2024-12-05T19:00:00Z",
+                    "home_team": "Alabama",
+                    "home_points": 21,
+                    "away_team": "Georgia",
+                    "away_points": 17,
+                }
+            ]
+        else:
+            live_scores_cache[0]["home_points"] += 7
+            live_scores_cache[0]["away_points"] += 3
+    else:
+        print("Fetching live scores (real API call)...")
+        url = 'https://api.collegefootballdata.com/games?year=2024&seasonType=regular'
+        headers = {'Authorization': 'Bearer l7+BizwvCul5ZoewG/gA9nGr3/6i9HGSoFMnOv4sahbZmgHbc8/P40qGWrWDkDgb'}
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            games = response.json()
+            live_scores_cache = [
+                {
+                    "week": game.get("week"),
+                    "start_date": game.get("start_date"),
+                    "home_team": game.get("home_team"),
+                    "home_points": game.get("home_points"),
+                    "away_team": game.get("away_team"),
+                    "away_points": game.get("away_points"),
+                }
+                for game in games
+                if game.get("start_date") and game.get("home_points") is not None and game.get("away_points") is not None
+            ]
+        else:
+            print(f"Failed to fetch live scores: {response.status_code}, Response: {response.text}")
+            return
+
+    is_live_game_active = len(live_scores_cache) > 0
+
+    if not is_live_game_active:
+        print("No live games detected. Pausing scheduler.")
+        scheduler.pause_job('live_scores_job')
+    else:
+        print("Live games detected. Scores updated.")
+
 
 def create_app():
     app = Flask(__name__)
@@ -20,23 +78,80 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.secret_key = 'your_secret_key'
 
-    scheduler = BackgroundScheduler()
     scheduler.add_job(fetch_and_store_rankings, 'cron', day_of_week='mon', hour=10)
     scheduler.add_job(fetch_and_store_ap_and_cfp_rankings, 'cron', day_of_week='mon', hour=11)
-    #scheduler.start()
+    scheduler.add_job(fetch_live_scores, 'interval', seconds=30, id='live_scores_job')
+    scheduler.start()
+    #scheduler.pause_job('live_scores_job')
 
     db.init_app(app)
+
+    @app.route('/test_live_scores', methods=['GET'])
+    def test_live_scores():
+        fetch_live_scores()
+        return jsonify(live_scores_cache)
 
     @app.route('/')
     def home():
         user = None
-        schedule = None
+        schedule = []
+        record = {}
+        roster = []
+
         if 'username' in session:
             user = User.query.filter_by(username=session['username']).first()
-            if user and user.favorite_team:
-                schedule = fetch_team_schedule(user.favorite_team)
 
-        return render_template('home.html', user=user, schedule=schedule)
+            if user and user.favorite_team:
+                favorite_team = user.favorite_team
+
+                schedule_url = f'https://api.collegefootballdata.com/games?year=2024'
+                headers = {'Authorization': API_KEY}
+
+                schedule_response = requests.get(schedule_url, headers=headers)
+                if schedule_response.status_code == 200:
+                    games = schedule_response.json()
+                    for game in games:
+                        if game["home_team"] == favorite_team or game["away_team"] == favorite_team:
+                            schedule.append({
+                                "week": game.get("week"),
+                                "home_team": game.get("home_team"),
+                                "home_points": game.get("home_points"),
+                                "away_team": game.get("away_team"),
+                                "away_points": game.get("away_points"),
+                                "date": game.get("start_date")
+                            })
+                else:
+                    print("Error fetching schedule data:", schedule_response.status_code)
+
+                records_url = 'https://api.collegefootballdata.com/records'
+                params = {'year': 2024, 'seasonType': 'regular'}
+
+                records_response = requests.get(records_url, headers=headers, params=params)
+                if records_response.status_code == 200:
+                    records = records_response.json()
+                    for team_record in records:
+                        if team_record["team"] == favorite_team:
+                            record = {
+                                "conference": team_record.get("conference", "N/A"),
+                                "total": team_record.get("total", {}),
+                                "homeGames": team_record.get("homeGames", {}),
+                                "awayGames": team_record.get("awayGames", {}),
+                                "conferenceGames": team_record.get("conferenceGames", {}),
+                                "expectedWins": team_record.get("expectedWins", 0)
+                            }
+                            break
+                else:
+                    print("Error fetching records data:", records_response.status_code)
+
+                roster_url = 'https://api.collegefootballdata.com/roster'
+                params = {'team': favorite_team}
+                roster_response = requests.get(roster_url, headers=headers, params=params)
+                if roster_response.status_code == 200:
+                    roster = roster_response.json()
+                    print("Error fetching roster data:", roster_response.status_code)
+
+        return render_template('home.html', user=user, schedule=schedule, record=record, roster=roster)
+
 
     @app.route('/scores')
     def scores():
@@ -201,9 +316,6 @@ def create_app():
             print("Error fetching roster data:", roster_response.status_code)
 
         return render_template('roster.html', team=team, roster=roster)
-
-
-
 
     @app.route('/news')
     def news():
@@ -414,6 +526,26 @@ def create_app():
         session.pop('username', None)
         return redirect(url_for('home'))
 
+    @app.route('/live_scores_data', methods=['GET'])
+    def live_scores_data():
+        return jsonify({"live_games": live_scores_cache})
+
+    
+    @app.route('/start_live_scores', methods=['POST'])
+    def start_live_scores():
+        try:
+            scheduler.resume_job('live_scores_job')  # Resume the job
+            print("Scheduler resumed for live scores.")
+            return jsonify({"message": "Scheduler resumed."})
+        except Exception as e:
+            print(f"Error resuming scheduler: {e}")
+            return jsonify({"error": str(e)})
+
+
+    @app.route('/live_scores')
+    def live_scores():
+        return render_template('live_scores.html', live_games=live_scores_cache)
+
     @app.route('/rankings/top25', methods=['GET'])
     def top_25_rankings():
         selected_poll = request.args.get('poll', 'AFCA Coaches')  # Default to 'AFCA Coaches'
@@ -517,7 +649,6 @@ if __name__ == '__main__':
         db.create_all()
         fetch_and_store_teams()
         fetch_and_store_rankings()
-        fetch_and_store_ap_and_cfp_rankings()
-    #scheduler.start()  
+        fetch_and_store_ap_and_cfp_rankings() 
     app.run(debug=True)
 
