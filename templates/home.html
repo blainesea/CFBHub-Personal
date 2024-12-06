@@ -3,30 +3,105 @@
 {% block title %}Home - College Football Hub{% endblock %}
 
 {% block content %}
-<h2>Welcome to the Home Page!</h2>
-<p>This is the home page of the College Football Hub.</p>
+<style>
+/* Hero Section Styles */
+.hero-section {
+    background: #7BAFD4;
+    color: black;
+    text-align: center;
+    padding: 50px 20px;
+}
 
-{% if user %}
-    <p>Welcome back, {{ user.username }}!</p>
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 0 10px;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.hero-content .btn {
+    background-color: #1e90ff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.hero-content .btn:hover {
+    background-color: #4682b4;
+}
+
+/* Content Section Styles */
+.container {
+    margin: 30px auto;
+    max-width: 800px;
+    padding: 20px;
+}
+
+.welcome-card {
     
-    {% if user.favorite_team %}
-        <p>Your favorite team is: <strong>{{ user.favorite_team }}</strong></p>
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        {% if schedule %}
-            <h3>{{ user.favorite_team }}'s Schedule:</h3>
-            <ul>
-                {% for game in schedule %}
-                    <li>{{ game.date }}: {{ game.opponent }} ({{ game.location }})</li>
-                {% endfor %}
-            </ul>
+/* Footer Styles */
+.footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin-top: 30px;
+}
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to College Football Hub</h1>
+        <p class="hero-subtitle">Explore schedules, stats, rankings, and more!</p>
+        <a href="{{ url_for('schedule') }}" class="btn btn-primary">Get Started</a>
+    </div>
+</div>
+
+<!-- Welcome Message Section -->
+<div class="container">
+    <div class="welcome-card">
+        <h2>This is the Home Page of College Football Hub</h2>
+
+        {% if user %}
+            <p>Welcome back, {{ user.username }}!</p>
+            
+            {% if user.favorite_team %}
+                <p>Your favorite team is: <strong>{{ user.favorite_team }}</strong></p>
+
+                {% if schedule %}
+                    <h3>{{ user.favorite_team }}'s Schedule:</h3>
+                    <ul>
+                        {% for game in schedule %}
+                            <li>{{ game.date }}: {{ game.opponent }} ({{ game.location }})</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Schedule data is not available at this time.</p>
+                {% endif %}
+            {% else %}
+                <p>You haven't selected a favorite team yet. Go to <a href="{{ url_for('settings') }}">settings</a> to choose one.</p>
+            {% endif %}
         {% else %}
-            <p>Schedule data is not available at this time.</p>
+            <p>Please <a href="{{ url_for('login') }}">log in</a> to personalize your experience.</p>
         {% endif %}
-    {% else %}
-        <p>You haven't selected a favorite team yet. Go to <a href="{{ url_for('settings') }}">settings</a> to choose one.</p>
-    {% endif %}
-{% else %}
-    <p>Please <a href="{{ url_for('login') }}">log in</a> to personalize your experience.</p>
-{% endif %}
+    </div>
+</div>
 
+<!-- Footer Section -->
+<footer class="footer">
+    <p>&copy; 2024 College Football Hub. All rights reserved.</p>
+</footer>
 {% endblock %}
