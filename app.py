@@ -17,7 +17,7 @@ live_scores_cache = []
 is_live_game_active = False
 
 
-TESTING = True  # Set to False for showcase
+TESTING = False  # Set to False for showcase
 
 def fetch_live_scores():
     global live_scores_cache, is_live_game_active
@@ -80,7 +80,7 @@ def create_app():
 
     scheduler.add_job(fetch_and_store_rankings, 'cron', day_of_week='mon', hour=10)
     scheduler.add_job(fetch_and_store_ap_and_cfp_rankings, 'cron', day_of_week='mon', hour=11)
-    scheduler.add_job(fetch_live_scores, 'interval', seconds=30, id='live_scores_job')
+    scheduler.add_job(fetch_live_scores, 'interval', minutes=3, id='live_scores_job')
     scheduler.start()
     #scheduler.pause_job('live_scores_job')
 
